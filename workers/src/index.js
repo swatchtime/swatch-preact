@@ -22,6 +22,7 @@ export default {
       function formatTimes(now = new Date()) {
         const sw = calculateSwatchTime(now);
         const rounded = Math.round(sw).toString();
+        const whole = Math.trunc(sw).toString();
         const pad = (n) => String(n).padStart(2, '0');
         const time24 = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
         let hours = now.getHours();
@@ -31,6 +32,7 @@ export default {
         return {
           swatch: sw.toFixed(2),
           rounded,
+          whole,
           time24,
           time12,
           ampm,
@@ -51,6 +53,7 @@ export default {
           const key = f.toLowerCase();
           if (key === 'swatch' || key === 'swatchtime' || key === 'swatch_time') body.swatch = all.swatch;
           else if (key === 'rounded') body.rounded = all.rounded;
+          else if (key === 'whole') body.whole = all.whole;
           else if (key === '24hr' || key === 'time24' || key === 'time_24') body.time24 = all.time24;
           else if (key === '12hr' || key === 'time12' || key === 'time_12') { body.time12 = all.time12; body.ampm = all.ampm; }
           else if (key === 'timestamp') body.timestamp = all.timestamp;

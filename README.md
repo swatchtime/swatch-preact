@@ -1,5 +1,7 @@
 # Swatch Internet Time
 
+version 0.2.0-beta
+
 A modern Preact application for displaying and managing Swatch Internet Time (.beats), featuring reminder integration, time conversion, and customizable settings.
 
 ## About Swatch Internet Time

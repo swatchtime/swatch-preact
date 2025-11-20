@@ -12,7 +12,7 @@ import { loadSettings, saveSettings, loadReminders, saveReminders, KEYS } from '
 export function App() {
 
   const defaultSettings = {
-    fontSize: 80,
+    fontSize: 100,
     fontColor: '#ffffff',
     fontFamily: 'Roboto, sans-serif',
     showLocalTime: false,
@@ -139,7 +139,7 @@ export function App() {
       </div>
       <SettingsModal settings={settings} onSettingsChange={setSettings} />
       <ReminderModal onEventCreate={handleEventCreate} modalRef={reminderModalRef} />
-      <TimeCalculator />
+      <TimeCalculator settings={settings} />
     </div>
   );
 }

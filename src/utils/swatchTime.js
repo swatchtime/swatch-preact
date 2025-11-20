@@ -27,17 +27,19 @@ export function calculateSwatchTime(date = new Date()) {
  * Convert Swatch beats to local time
  */
 export function beatsToLocalTime(beats) {
+  // Use rounded seconds to avoid losing a second due to floating-point floors
   const totalSeconds = beats * 86.4;
-  
-  // Calculate BMT time
-  const bmtHours = Math.floor(totalSeconds / 3600);
-  const bmtMinutes = Math.floor((totalSeconds % 3600) / 60);
-  const bmtSeconds = Math.floor(totalSeconds % 60);
-  
+  const rounded = Math.round(totalSeconds);
+
+  // Calculate BMT time from rounded seconds
+  const bmtHours = Math.floor(rounded / 3600);
+  const bmtMinutes = Math.floor((rounded % 3600) / 60);
+  const bmtSeconds = rounded % 60;
+
   // Convert BMT to UTC (subtract 1 hour)
   const utcDate = new Date();
   utcDate.setUTCHours(bmtHours - 1, bmtMinutes, bmtSeconds, 0);
-  
+
   return utcDate;
 }
 
@@ -62,6 +64,20 @@ export function normalizeBeats(input) {
   // keep only digits and dot
   s = s.replace(/[^0-9.]/g, '');
   if (s === '') return '';
+  // If there is no decimal point and the integer part is longer than 3 digits,
+  // treat the input as the user having typed extra digits and truncate to the
+  // first 3 digits (e.g. 1222222 -> 122). If there's a decimal point but the
+  // integer portion is longer than 3, truncate the integer portion similarly.
+  if (s.indexOf('.') === -1) {
+    if (s.length > 3) {
+      s = s.slice(0, 3);
+    }
+  } else {
+    const parts = s.split('.');
+    if (parts[0].length > 3) parts[0] = parts[0].slice(0, 3);
+    s = parts[0] + (parts[1] ? '.' + parts[1] : '');
+  }
+
   const n = parseFloat(s);
   if (Number.isNaN(n)) return '';
   let v = Math.max(0, Math.min(999.99, n));

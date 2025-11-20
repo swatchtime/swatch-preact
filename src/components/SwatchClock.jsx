@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { calculateSwatchTime } from '../utils/swatchTime';
 
 // Helper: convert a px value into rem based on current document root font-size
@@ -44,30 +44,48 @@ export function SwatchClock({ fontSize, fontColor, fontFamily, showLocalTime, ti
     return () => clearInterval(interval);
   }, [showLocalTime, timeFormat24, showCentibeats]);
 
-  // clamp the requested fontSize so it doesn't overflow very small viewports
-  const maxAllowedPx = Math.max(100, window.innerWidth * 0.8); // ensure some reasonable minimum
-  const finalPx = Math.min(fontSize, maxAllowedPx);
+  const wrapperRef = useRef(null);
+  const [clockWidth, setClockWidth] = useState(() => (typeof window !== 'undefined' ? Math.max(200, Math.floor(window.innerWidth * 0.9)) : 800));
 
-  const clockStyle = {
-    fontSize: `${pxToRem(finalPx)}rem`,
-    color: fontColor,
-    fontFamily: fontFamily,
+  useEffect(() => {
+    function updateWidth() {
+      const el = wrapperRef.current;
+      const w = el ? Math.max(200, el.clientWidth) : Math.max(200, Math.floor(window.innerWidth * 0.9));
+      setClockWidth(w);
+    }
+    updateWidth();
+    const onResize = () => updateWidth();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // compute scale based on whether centibeats are shown (centibeats need smaller scale)
+  const scale = showCentibeats ? 0.18 : 0.22;
+
+  // set CSS vars: --clock-width and --clock-user (slider value), and --clock-scale
+  // keep only CSS variables inline (dynamic values); static layout moved to CSS
+  const wrapperStyle = {
+    ['--clock-width']: `${clockWidth}px`,
+    ['--clock-user']: `${fontSize}px`,
+    ['--clock-scale']: String(scale),
+    ['--font-color']: fontColor,
+    ['--font-family']: fontFamily,
   };
 
   return (
-    <div className="text-center my-4">
-      <div style={{ ...clockStyle }} className="display-1 fw-bold border border-2 border-secondary rounded-5 p-5">
-        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ paddingBottom: `${pxToRem(Math.round(finalPx * 0.06))}rem`, lineHeight: 1 }} aria-hidden>
+    <div ref={wrapperRef} className="swatch-clock-wrap text-center my-4" style={wrapperStyle}>
+      <div className="display-1 fw-bold border border-2 border-secondary rounded-5 p-5">
+        <div className="swatch-inline-flex">
+          <div aria-hidden className="swatch-at">
             @
           </div>
-          <div style={{ lineHeight: 1 }}>
+          <div className="swatch-time">
             {swatchTime}
           </div>
         </div>
       </div>
       {showLocalTime && (
-        <div style={{ ...clockStyle, fontSize: `${pxToRem(finalPx * 0.4)}rem` }} className="mt-2">
+        <div className="swatch-localtime mt-2">
           {localTime}
         </div>
       )}

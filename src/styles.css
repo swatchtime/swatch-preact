@@ -9,3 +9,151 @@
   max-width: 100%;
   overflow: hidden;
 }
+
+/* Responsive clock font sizing using CSS variables as a fallback/safety net */
+:root {
+  --clock-font-min: 48px;            /* smallest readable clock size */
+  --clock-font-preferred: 12vw;     /* scales with viewport width */
+  --clock-font-max: 600px;          /* allow very large displays */
+  --clock-font: clamp(var(--clock-font-min), var(--clock-font-preferred), var(--clock-font-max));
+}
+
+.swatch-clock-wrap .display-1 {
+  /* font sizing driven by container width and optional user override */
+  --clock-font-min: 48px;
+  --clock-font-max: 600px;
+  /* default scale: fraction of container width to use for the clock digits */
+  --clock-scale: 0.22;
+  font-size: clamp(var(--clock-font-min), var(--clock-user, calc(var(--clock-width) * var(--clock-scale))), var(--clock-font-max));
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 95%;
+  margin: 0 auto;
+}
+
+/* Inline-style replacements */
+.swatch-inline-flex {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swatch-at {
+  padding-bottom: 0.06em;
+  line-height: 1;
+}
+
+.swatch-time {
+  line-height: 1;
+}
+
+.swatch-localtime {
+  font-size: calc(var(--clock-user, calc(var(--clock-width) * var(--clock-scale))) / 3);
+  color: var(--font-color, inherit);
+  font-family: var(--font-family, inherit);
+}
+
+.modal-overlay {
+  background-color: rgba(0,0,0,0.5);
+}
+
+.colorpicker-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.colorpicker-panel {
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.color-thumb-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.color-thumb {
+  padding: 0;
+  border-radius: 10px;
+  box-sizing: border-box;
+  border: 2px solid transparent;
+}
+.color-thumb.selected {
+  padding: 3px;
+}
+.color-thumb.thumb-dark.selected {
+  border-color: #ffffff;
+}
+.color-thumb.thumb-light.selected {
+  border-color: #000000;
+}
+
+.color-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 6px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  box-sizing: border-box;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background-color: var(--swatch-color, transparent);
+}
+
+.color-custom-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.color-custom-label {
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+
+.color-input-wrapper {
+  padding: 0;
+  border-radius: 10px;
+  box-sizing: border-box;
+  border: 2px solid transparent;
+}
+.color-input-wrapper.selected {
+  padding: 3px;
+}
+.color-input-wrapper.thumb-dark.selected {
+  border-color: #ffffff;
+}
+.color-input-wrapper.thumb-light.selected {
+  border-color: #000000;
+}
+
+.color-input {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+}
+
+.cursor-pointer { cursor: pointer; }
+
+.icon-bright-light { color: #fd7e14; }
+.icon-bright-dark { color: #6c757d; }
+.icon-moon-dark { color: #ffc107; }
+.icon-moon-light { color: #6c757d; }
+
+.swatch-clock-wrap { color: var(--font-color, inherit); font-family: var(--font-family, inherit); }

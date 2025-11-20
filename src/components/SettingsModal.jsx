@@ -1,9 +1,30 @@
 import { ColorPicker } from './ColorPicker';
+import { useEffect, useState } from 'preact/hooks';
 
 export function SettingsModal({ settings, onSettingsChange }) {
     const handleCheckboxChange = (key) => (e) => {
       onSettingsChange({ ...settings, [key]: e.target.checked });
     };
+    const [sliderMax, setSliderMax] = useState(600);
+
+    useEffect(() => {
+      function updateMax() {
+          // Prefer the clock wrapper's measured width so slider max matches the frame
+          const wrapper = document.querySelector('.swatch-clock-wrap');
+          const containerWidth = wrapper ? wrapper.clientWidth : window.innerWidth;
+          const scale = settings.showCentibeats ? 0.18 : 0.22;
+          // computed max is a fraction of the container width, but clamp to sensible bounds
+          const computedMax = Math.max(80, Math.min(Math.floor(containerWidth * scale), 600));
+          setSliderMax(computedMax);
+          // clamp settings value if it exceeds new max
+          if (settings.fontSize > computedMax) {
+            onSettingsChange({ ...settings, fontSize: computedMax });
+          }
+        }
+      updateMax();
+      window.addEventListener('resize', updateMax);
+      return () => window.removeEventListener('resize', updateMax);
+    }, [onSettingsChange, settings]);
   const fontFamilies = [
     'Roboto, sans-serif',
     'Open Sans, sans-serif',
@@ -42,9 +63,9 @@ export function SettingsModal({ settings, onSettingsChange }) {
                 type="range" 
                 className="form-range" 
                 min="20" 
-                max="200" 
+                max={sliderMax} 
                 value={settings.fontSize}
-                onChange={(e) => handleChange('fontSize', parseInt(e.target.value))}
+                onChange={(e) => handleChange('fontSize', Math.min(parseInt(e.target.value), sliderMax))}
               />
             </div>
             

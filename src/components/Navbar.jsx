@@ -15,18 +15,17 @@ export function Navbar({ settings, setSettings, events, setEvents }) {
         </a>
 
         <div className="d-flex align-items-center ms-auto" title="Toggle Theme Color">
-          <i className="bi bi-brightness-high me-2" style={{ color: !settings.darkTheme ? '#fd7e14' : '#6c757d' }}></i>
+          <i className={`bi bi-brightness-high me-2 ${settings.darkTheme ? 'icon-bright-dark' : 'icon-bright-light'}`}></i>
           <div className="form-check form-switch">
             <input
-              className="form-check-input"
+              className="form-check-input cursor-pointer"
               type="checkbox"
               id="themeSwitch"
               checked={settings.darkTheme}
               onChange={handleThemeToggle}
-              style={{ cursor: 'pointer' }}
             />
           </div>
-          <i className="bi bi-moon-stars-fill me-2" style={{ color: settings.darkTheme ? '#ffc107' : '#6c757d' }}></i>
+          <i className={`bi bi-moon-stars-fill me-2 ${settings.darkTheme ? 'icon-moon-dark' : 'icon-moon-light'}`}></i>
         </div>
 
         <div className="d-flex ms-4 gap-2 align-items-center">

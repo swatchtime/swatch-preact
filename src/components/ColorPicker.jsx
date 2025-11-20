@@ -40,32 +40,20 @@ export function ColorPicker({ darkTheme, currentColor, selectedPreset, customCol
   return (
     <div>
       <label className="form-label">Color Presets</label>
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }} className="mb-2">
-        <div className="border border-secondary bg-transparent" style={{ padding: '8px', borderRadius: '8px' }}>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+      <div className="mb-2 colorpicker-row">
+        <div className="border border-secondary bg-transparent colorpicker-panel">
+          <div className="color-thumb-row">
             {list.map(p => {
               const isSelected = selectedPreset === p.key || (selectedPreset !== 'custom' && matchesColor(p));
               return (
-                <div key={p.key} style={{ padding: isSelected ? '3px' : 0, borderRadius: '10px', boxSizing: 'border-box', border: isSelected ? `2px solid ${frameBorderColor}` : '2px solid transparent' }}>
+                <div key={p.key} className={`color-thumb ${isSelected ? 'selected' : ''} ${darkTheme ? 'thumb-dark' : 'thumb-light'}`}>
                   <button
                     type="button"
                     onClick={handlePresetClick(p)}
-                    className="btn p-0"
+                    className="btn p-0 color-btn"
                     aria-label={p.label}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '44px',
-                      height: '44px',
-                      padding: '6px',
-                      borderRadius: '8px',
-                      background: 'transparent',
-                      border: 'none',
-                      boxSizing: 'border-box'
-                    }}
                   >
-                    <div style={{ width: '28px', height: '28px', backgroundColor: p.color, borderRadius: '6px' }} />
+                    <div className="color-swatch" style={{ ['--swatch-color']: p.color }} />
                   </button>
                 </div>
               );
@@ -73,17 +61,16 @@ export function ColorPicker({ darkTheme, currentColor, selectedPreset, customCol
           </div>
         </div>
 
-        <div className="border border-secondary bg-transparent" style={{ padding: '8px', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ fontSize: '0.8rem', marginBottom: '6px' }} className={darkTheme ? 'text-light' : ''}>Choose Custom Color</div>
-          <div style={{ padding: selectedPreset === 'custom' ? '3px' : 0, borderRadius: '10px', boxSizing: 'border-box', border: selectedPreset === 'custom' ? `2px solid ${frameBorderColor}` : '2px solid transparent' }}>
+        <div className="border border-secondary bg-transparent colorpicker-panel color-custom-panel">
+          <div className={darkTheme ? 'text-light color-custom-label' : 'color-custom-label'}>Choose Custom Color</div>
+          <div className={`color-input-wrapper ${selectedPreset === 'custom' ? 'selected' : ''} ${darkTheme ? 'thumb-dark' : 'thumb-light'}`}>
             <input
               type="color"
-              className="form-control form-control-color p-0"
+              className="form-control form-control-color p-0 color-input"
               value={customColor || currentColor}
               onInput={handleCustomChange}
               title="Custom color"
               aria-label="Custom color"
-              style={{ width: '44px', height: '44px', padding: 0, borderRadius: '8px', border: 'none', background: 'transparent' }}
             />
           </div>
         </div>

@@ -1,0 +1,11 @@
+/* Application styles: responsive root font-size for rem-based scaling */
+:root {
+  /* Minimum 14px, preferred scaling based on viewport width, maximum 18px */
+  font-size: clamp(14px, 1.8vw, 18px);
+}
+
+/* Small helper to ensure the clock container doesn't overflow on tiny screens */
+.swatch-clock-wrap {
+  max-width: 100%;
+  overflow: hidden;
+}

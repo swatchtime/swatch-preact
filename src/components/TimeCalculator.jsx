@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { calculateSwatchTime, beatsToLocalTime } from '../utils/swatchTime';
+import { calculateSwatchTime, beatsToLocalTime, normalizeBeats } from '../utils/swatchTime';
 
 export function TimeCalculator() {
   const [swatchValue, setSwatchValue] = useState('');
@@ -8,15 +8,20 @@ export function TimeCalculator() {
   const [localSeconds, setLocalSeconds] = useState('');
 
   const handleSwatchChange = (value) => {
-    setSwatchValue(value);
-    if (value && !isNaN(value)) {
-      const beats = parseFloat(value);
-      if (beats >= 0 && beats < 1000) {
+    const normalized = normalizeBeats(value);
+    setSwatchValue(normalized);
+    if (normalized !== '') {
+      const beats = parseFloat(normalized);
+      if (!Number.isNaN(beats) && beats >= 0 && beats < 1000) {
         const localDate = beatsToLocalTime(beats);
         setLocalHours(String(localDate.getHours()).padStart(2, '0'));
         setLocalMinutes(String(localDate.getMinutes()).padStart(2, '0'));
         setLocalSeconds(String(localDate.getSeconds()).padStart(2, '0'));
       }
+    } else {
+      setLocalHours('');
+      setLocalMinutes('');
+      setLocalSeconds('');
     }
   };
 
@@ -50,16 +55,17 @@ export function TimeCalculator() {
           <div className="modal-body">
             <div className="mb-4">
               <label className="form-label">Swatch Internet Time (@beats)</label>
-              <input 
-                type="number" 
-                className="form-control" 
-                placeholder="000.00"
-                min="0"
-                max="999.99"
-                step="0.01"
-                value={swatchValue}
-                onChange={(e) => handleSwatchChange(e.target.value)}
-              />
+              <div className="input-group">
+                <span className="input-group-text" id="beats-addon">@</span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="000.00"
+                  aria-describedby="beats-addon"
+                  value={swatchValue}
+                  onChange={(e) => handleSwatchChange(e.target.value)}
+                />
+              </div>
             </div>
             
             <div className="text-center mb-3">

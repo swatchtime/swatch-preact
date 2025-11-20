@@ -1,8 +1,6 @@
 # Swatch Internet Time
 
-A modern Preact application for displaying and managing Swatch Internet Time (.beats), featuring calendar integration, time conversion, and customizable settings.
-
-![Swatch Internet Time App](https://github.com/user-attachments/assets/b12697dd-dd30-4292-9de9-803d1e8a4e70)
+A modern Preact application for displaying and managing Swatch Internet Time (.beats), featuring reminder integration, time conversion, and customizable settings.
 
 ## About Swatch Internet Time
 
@@ -28,17 +26,14 @@ Access via the gear icon to customize your experience:
 - **12/24-Hour Format**: Switch between 12-hour (AM/PM) and 24-hour format for local time
 - **Light/Dark Theme**: Toggle between light and dark themes
 
-### Calendar & Events
-Create and manage events with the calendar panel:
-- **Event Creation Form**:
+### Reminders
+Create and manage simple reminders using Swatch Internet Time:
+- **Reminder Creation Form**:
   - Title and Description
-  - Start Date & Time
-  - End Date & Time
-  - Reminder options: 5min, 15min, 30min, 1hr, 2hr, 12hr, 1 day
-  - Repeat options: None, Daily, Weekly, Monthly, Yearly
-  - Option to use Swatch Internet Time for event times
-- **Export to .ics**: Download events as calendar files for desktop/mobile calendar apps
-- **Calendar subscription URL**: Share events via subscribable calendar links
+  - Start Date & Time (or enter Swatch beats)
+  - Reminders are single occurrences (no repeat options)
+  - Swatch beats accepted in formats like `@123`, `123.45` and are normalized
+- **Export and subscription features removed**: reminders are local-only and stored in the browser
 
 ### Reminder System
 Bell icon feature for event notifications:
@@ -124,7 +119,7 @@ src/
 ├── components/
 │   ├── SwatchClock.jsx       # Main time display component
 │   ├── SettingsModal.jsx     # Settings configuration modal
-│   ├── CalendarModal.jsx     # Event creation and management
+│   ├── ReminderModal.jsx     # Reminder creation modal
 │   ├── ReminderBell.jsx      # Notification system
 │   └── TimeCalculator.jsx    # Time conversion tool
 ├── utils/

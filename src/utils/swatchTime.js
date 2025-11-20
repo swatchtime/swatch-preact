@@ -47,3 +47,27 @@ export function beatsToLocalTime(beats) {
 export function localTimeToBeats(date) {
   return calculateSwatchTime(date);
 }
+
+/**
+ * Normalize user-entered beats.
+ * Accepts formats: '@123', '@123.45', '123', '123.45'
+ * Rounds to 2 decimal places when necessary and clamps to [0, 999.99].
+ * Returns a string (without leading '@') or empty string for invalid input.
+ */
+export function normalizeBeats(input) {
+  if (input === null || input === undefined) return '';
+  let s = String(input).trim();
+  if (s === '') return '';
+  if (s.startsWith('@')) s = s.slice(1);
+  // keep only digits and dot
+  s = s.replace(/[^0-9.]/g, '');
+  if (s === '') return '';
+  const n = parseFloat(s);
+  if (Number.isNaN(n)) return '';
+  let v = Math.max(0, Math.min(999.99, n));
+  v = Math.round(v * 100) / 100;
+  // format: drop trailing zeros where possible
+  if (Number.isInteger(v)) return String(v);
+  if (Math.round(v * 10) === v * 10) return v.toFixed(1);
+  return v.toFixed(2);
+}

@@ -1,30 +1,37 @@
 import { useState, useEffect } from 'preact/hooks';
 
-export function ReminderBell({ events }) {
+export function ReminderBell({ events, darkTheme, onDismiss }) {
   const [activeReminders, setActiveReminders] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [currentReminder, setCurrentReminder] = useState(null);
 
   useEffect(() => {
-    // Check for events that need reminders
+    // Check for events that need reminders. Use functional updates to avoid
+    // reading stale state and prevent effect re-creation loops.
     const checkReminders = () => {
       const now = new Date();
       events.forEach(event => {
         if (event.reminderTime && !event.dismissed) {
           const reminderTime = new Date(event.reminderTime);
-          if (now >= reminderTime && !activeReminders.find(r => r.id === event.id)) {
-            const newReminder = { ...event, acknowledged: false };
-            setActiveReminders(prev => [...prev, newReminder]);
-            setCurrentReminder(newReminder);
-            setShowModal(true);
+          if (now >= reminderTime) {
+            setActiveReminders(prev => {
+              if (prev.find(r => r.id === event.id)) return prev;
+              const newReminder = { ...event, acknowledged: false };
+              // If no current reminder is selected, set this one
+              setCurrentReminder(curr => curr || newReminder);
+              setShowModal(true);
+              return [...prev, newReminder];
+            });
           }
         }
       });
     };
 
+    // Run immediately and then poll every second.
+    checkReminders();
     const interval = setInterval(checkReminders, 1000);
     return () => clearInterval(interval);
-  }, [events, activeReminders]);
+  }, [events]);
 
   const handleOk = () => {
     if (currentReminder) {
@@ -38,6 +45,7 @@ export function ReminderBell({ events }) {
   const handleDismiss = () => {
     if (currentReminder) {
       setActiveReminders(prev => prev.filter(r => r.id !== currentReminder.id));
+      if (typeof onDismiss === 'function') onDismiss(currentReminder.id);
     }
     setShowModal(false);
   };
@@ -49,21 +57,43 @@ export function ReminderBell({ events }) {
     }
   };
 
-  const hasActiveReminders = activeReminders.some(r => !r.dismissed);
+  const hasActiveReminders = activeReminders.length > 0;
+
+  if (!hasActiveReminders) return null;
+
+  const bellStyle = darkTheme
+    ? { backgroundColor: '#ffc107', color: '#212529' }
+    : { backgroundColor: '#fd7e14', color: '#fff' };
+
+  // compute a friendly display time for the current reminder
+  let displayTime = '';
+  if (currentReminder) {
+    if (currentReminder.reminderTime) {
+      const d = new Date(currentReminder.reminderTime);
+      displayTime = d.toLocaleString();
+    } else if (currentReminder.startDate && currentReminder.startTime) {
+      try {
+        const [y, m, d] = currentReminder.startDate.split('-').map(Number);
+        const [hh, mm] = currentReminder.startTime.split(':').map(Number);
+        const dt = new Date(y, m - 1, d, hh || 0, mm || 0, 0, 0);
+        displayTime = dt.toLocaleString();
+      } catch (e) {
+        displayTime = `${currentReminder.startDate} ${currentReminder.startTime}`;
+      }
+    } else {
+      displayTime = currentReminder.startDate || currentReminder.startTime || '';
+    }
+  }
 
   return (
     <>
       <button 
-        className={`btn ${hasActiveReminders ? 'btn-warning' : 'btn-outline-secondary'} position-relative`}
+        className={`btn position-relative`}
         onClick={handleBellClick}
         title="Reminders"
+        style={bellStyle}
       >
         <i className="bi bi-bell-fill"></i>
-        {hasActiveReminders && (
-          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            {activeReminders.length}
-          </span>
-        )}
       </button>
 
       {showModal && currentReminder && (
@@ -71,20 +101,20 @@ export function ReminderBell({ events }) {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Event Reminder</h5>
+                <h5 className="modal-title">Reminder</h5>
               </div>
               <div className="modal-body">
                 <h6>{currentReminder.title}</h6>
                 <p>{currentReminder.description}</p>
-                <p className="text-muted">
-                  <small>
-                    {currentReminder.startDate} {currentReminder.startTime}
-                  </small>
-                </p>
+                {displayTime && (
+                  <p className="text-muted">
+                    <small>{displayTime}</small>
+                  </p>
+                )}
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={handleOk}>
-                  OK
+                  Close
                 </button>
                 <button type="button" className="btn btn-primary" onClick={handleDismiss}>
                   Dismiss

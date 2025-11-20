@@ -1,4 +1,9 @@
+import { ColorPicker } from './ColorPicker';
+
 export function SettingsModal({ settings, onSettingsChange }) {
+    const handleCheckboxChange = (key) => (e) => {
+      onSettingsChange({ ...settings, [key]: e.target.checked });
+    };
   const fontFamilies = [
     'Roboto, sans-serif',
     'Open Sans, sans-serif',
@@ -20,12 +25,14 @@ export function SettingsModal({ settings, onSettingsChange }) {
           </div>
           <div className="modal-body">
             <div className="mb-3">
-              <label className="form-label">Font Color</label>
-              <input 
-                type="color" 
-                className="form-control form-control-color" 
-                value={settings.fontColor}
-                onChange={(e) => handleChange('fontColor', e.target.value)}
+              <ColorPicker
+                darkTheme={settings.darkTheme}
+                currentColor={settings.fontColor}
+                customColor={settings.customColor}
+                selectedPreset={settings.colorPreset}
+                onChange={({ color, preset, customColor }) => {
+                  onSettingsChange({ ...settings, fontColor: color, colorPreset: preset, ...(customColor ? { customColor } : {}) });
+                }}
               />
             </div>
             
@@ -60,10 +67,22 @@ export function SettingsModal({ settings, onSettingsChange }) {
                 type="checkbox" 
                 id="showLocalTime"
                 checked={settings.showLocalTime}
-                onChange={(e) => handleChange('showLocalTime', e.target.checked)}
+                onChange={handleCheckboxChange('showLocalTime')}
               />
               <label className="form-check-label" htmlFor="showLocalTime">
                 Show Local Time
+              </label>
+            </div>
+            <div className="form-check mb-3">
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="showCentibeats"
+                checked={settings.showCentibeats}
+                onChange={handleCheckboxChange('showCentibeats')}
+              />
+              <label className="form-check-label" htmlFor="showCentibeats">
+                Show centibeats (e.g. @626.43)
               </label>
             </div>
             
@@ -80,18 +99,6 @@ export function SettingsModal({ settings, onSettingsChange }) {
               </label>
             </div>
             
-            <div className="form-check mb-3">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="darkTheme"
-                checked={settings.darkTheme}
-                onChange={(e) => handleChange('darkTheme', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="darkTheme">
-                Dark Theme
-              </label>
-            </div>
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>

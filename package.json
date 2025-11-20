@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "benchmark:cloud": "node tools/benchmark/benchmark-cloudflare.js"
   },
   "dependencies": {
     "preact": "^10.27.2"

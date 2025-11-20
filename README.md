@@ -4,16 +4,27 @@ version 0.2.0-beta
 
 A modern Preact application for displaying and managing Swatch Internet Time (.beats), featuring reminder integration, time conversion, and customizable settings.
 
+<img src="public/screenshot.png" />
+
 ## About Swatch Internet Time
 
 Swatch Internet Time is a decimal time concept introduced by the Swatch corporation in 1998. It divides the day into 1,000 "beats" instead of hours, minutes, and seconds. Each beat is equivalent to 1 minute and 26.4 seconds. The day starts at midnight BMT (Biel Mean Time, UTC+1).
 
-## Features
+**Learn more:**
+
+- https://www.swatch.com/en-us/internet-time.html
+
+- https://en.wikipedia.org/wiki/Swatch_Internet_Time
+
+
+## App Features
 
 ### Core Display
 - **Real-time Swatch Internet Time Clock**: Displays current time in .beats format (@000.00 - @999.99)
+- **Includes centibeats**: Displays .beat time with 2 decimal places of accuracy
 - **Updates every second** for accurate timekeeping
 - **Customizable display** with multiple font options and sizes
+- **Light/Dark Theme**: Toggle between light and dark themes
 
 ### Settings Panel
 Access via the gear icon to customize your experience:
@@ -26,7 +37,7 @@ Access via the gear icon to customize your experience:
   - Montserrat
 - **Show Local Time**: Toggle to display local time below Swatch time
 - **12/24-Hour Format**: Switch between 12-hour (AM/PM) and 24-hour format for local time
-- **Light/Dark Theme**: Toggle between light and dark themes
+
 
 ### Reminders
 Create and manage simple reminders using Swatch Internet Time:
@@ -34,19 +45,17 @@ Create and manage simple reminders using Swatch Internet Time:
   - Title and Description
   - Start Date & Time (or enter Swatch beats)
   - Reminders are single occurrences (no repeat options)
-  - Swatch beats accepted in formats like `@123`, `123.45` and are normalized
-- **Export and subscription features removed**: reminders are local-only and stored in the browser
+  - Swatch beats accepted in formats like `@123`, `123.45`
 
 ### Reminder System
 Bell icon feature for event notifications:
 - **Visual indicator**: Bell icon highlights when reminders are active
-- **Badge counter**: Shows number of active reminders
 - **Modal notifications**: Displays event details when reminder time arrives
 - **Dual actions**:
   - **OK**: Acknowledges reminder but keeps bell icon active
   - **Dismiss**: Removes reminder and clears bell notification
 - **Reopen reminders**: Click bell icon to view active reminders again
-- **Persistent until dismissed**: Bell remains highlighted until user dismisses
+- **Persistent until dismissed**: Bell remains highlighted until dismissed
 
 ### Time Calculator
 Convert between Swatch and Local time:
@@ -141,11 +150,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-See [LICENSE](LICENSE) file for details.
-
-## Resources
-
-- [Swatch Internet Time on Wikipedia](https://en.wikipedia.org/wiki/Swatch_Internet_Time)
-- [Preact Documentation](https://preactjs.com/)
-- [Bootstrap Documentation](https://getbootstrap.com/)
-- [Vite Documentation](https://vitejs.dev/)
+Released under the MIT [LICENSE].

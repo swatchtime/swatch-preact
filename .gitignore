@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 *.md 
 *.bak
+
+# Project-specific ignores
+tools/
+workers/
+wrangler.toml

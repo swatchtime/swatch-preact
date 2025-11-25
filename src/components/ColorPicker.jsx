@@ -1,4 +1,3 @@
-import { h } from 'preact';
 import { useMemo } from 'preact/hooks';
 
 export function ColorPicker({ darkTheme, currentColor, selectedPreset, customColor, onChange }) {
@@ -7,12 +6,12 @@ export function ColorPicker({ darkTheme, currentColor, selectedPreset, customCol
     dark: [
       { key: 'dark-lime', label: 'Lime', color: '#00FF00' },
       { key: 'dark-gold', label: 'Gold', color: '#FFD700' },
-      { key: 'dark-red', label: 'Red', color: '#FF4136' },
+      { key: 'dark-red', label: 'Red', color: '#DA0022' },  // Swatch Red
       { key: 'dark-blue', label: 'Blue', color: '#1E90FF' }
     ],
     light: [
       { key: 'light-blue', label: 'Blue', color: '#1E90FF' },
-      { key: 'light-red', label: 'Red', color: '#FF4136' },
+      { key: 'light-red', label: 'Red', color: '#DA0022' },  // Swatch Red
       { key: 'light-forest', label: 'Forest', color: '#228B22' },
       { key: 'light-purple', label: 'Purple', color: '#800080' }
     ]
@@ -62,15 +61,15 @@ export function ColorPicker({ darkTheme, currentColor, selectedPreset, customCol
         </div>
 
         <div className="border border-secondary bg-transparent colorpicker-panel color-custom-panel">
-          <div className={darkTheme ? 'text-light color-custom-label' : 'color-custom-label'}>Choose Custom Color</div>
+          <div className={darkTheme ? 'text-light color-custom-label' : 'color-custom-label'}>Custom Color</div>
           <div className={`color-input-wrapper ${selectedPreset === 'custom' ? 'selected' : ''} ${darkTheme ? 'thumb-dark' : 'thumb-light'}`}>
             <input
               type="color"
               className="form-control form-control-color p-0 color-input"
               value={customColor || currentColor}
               onInput={handleCustomChange}
-              title="Custom color"
-              aria-label="Custom color"
+              title="Custom Color"
+              aria-label="Custom Color"
             />
           </div>
         </div>

@@ -1,7 +1,9 @@
 import { useState } from 'preact/hooks';
 import { calculateSwatchTime, beatsToLocalTime, normalizeBeats } from '../utils/swatchTime';
+import { settingsSignal } from '../signals/store';
 
-export function TimeCalculator({ settings }) {
+export function TimeCalculator() {
+  const settings = settingsSignal.value || {};
   const [swatchValue, setSwatchValue] = useState('');
   const [localHours, setLocalHours] = useState('');
   const [localMinutes, setLocalMinutes] = useState('');
@@ -141,7 +143,7 @@ export function TimeCalculator({ settings }) {
             </div>
             
             <div className="mb-3">
-              <label className="form-label">Local Time {(settings && settings.timeFormat24 === false) ? '(12-hour)' : '(24-hour)'}</label>
+                <label className="form-label">Local Time {(settings && settings.timeFormat24 === false) ? '(12-hour)' : '(24-hour)'}</label>
               <div>
                 {settings && settings.timeFormat24 === false ? (
                   <div className="row g-2">

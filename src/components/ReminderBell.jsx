@@ -1,56 +1,143 @@
 import { useState, useEffect } from 'preact/hooks';
 import { showNotification } from '../utils/notifications';
+import { eventsSignal, removeEvent, activeRemindersSignal, muteSignal, settingsSignal, addOrUpdateEvent } from '../signals/store';
 
-export function ReminderBell({ events, darkTheme, onDismiss, mute }) {
-  const [activeReminders, setActiveReminders] = useState([]);
+export function ReminderBell() {
+  // Read signals directly so the component re-renders when reminders change
+  const events = eventsSignal.value;
+  const mute = muteSignal.value;
+  const darkTheme = settingsSignal.value ? settingsSignal.value.darkTheme : true;
+
+  const [activeReminders, setActiveReminders] = useState(() => activeRemindersSignal.value || []);
   const [showModal, setShowModal] = useState(false);
   const [currentReminder, setCurrentReminder] = useState(null);
 
+  // Keep the local activeReminders in sync with the shared transient signal
   useEffect(() => {
-    // Check for events that need reminders. Use functional updates to avoid
-    // reading stale state and prevent effect re-creation loops.
-      const checkReminders = () => {
-      const now = new Date();
-      events.forEach(event => {
-        if (event.reminderTime && !event.dismissed) {
-          const reminderTime = new Date(event.reminderTime);
-          if (now >= reminderTime) {
-            setActiveReminders(prev => {
-                if (prev.find(r => r.id === event.id)) return prev;
-                const newReminder = { ...event, acknowledged: false };
-                // Keep current reminder as-is (show oldest first). Only set if none
-                setCurrentReminder(curr => curr || newReminder);
-                setShowModal(true);
-                // attempt to show a system notification (warned at create time)
-                try {
-                  if (!mute) {
-                    showNotification(event.title || 'Reminder', {
-                      body: event.description || '',
-                      tag: `reminder-${event.id}`
-                    });
-                  }
-                } catch (e) {
-                  // ignore
-                }
-                return [...prev, newReminder];
-            });
-          }
+    activeRemindersSignal.value = activeReminders;
+  }, [activeReminders]);
+
+  // Schedule a single timer for the next due reminder instead of polling every second.
+  useEffect(() => {
+    let timer = null;
+    try {
+      const now = Date.now();
+      const due = [];
+      let nextTs = null;
+
+      (events || []).forEach(ev => {
+        if (ev.reminderTime && !ev.dismissed) {
+          const t = new Date(ev.reminderTime).getTime();
+          if (t <= now) due.push(ev);
+          else if (nextTs === null || t < nextTs) nextTs = t;
         }
       });
-    };
 
-    // Run immediately and then poll every second.
-    checkReminders();
-    const interval = setInterval(checkReminders, 1000);
-    return () => clearInterval(interval);
+      if (due.length > 0) {
+        console.debug('[ReminderBell] Found due reminders:', due.map(d => d.id));
+      } else if (nextTs) {
+        console.debug('[ReminderBell] Next reminder scheduled at', new Date(nextTs).toISOString());
+      }
+
+      if (due.length > 0) {
+        setActiveReminders(prev => {
+          const ids = new Set(prev.map(p => p.id));
+          const merged = [...prev, ...due.filter(d => !ids.has(d.id))];
+          return merged;
+        });
+
+        // If no modal is currently shown and there is at least one due reminder,
+        // set the current reminder to the first due and open the modal so the
+        // user is immediately alerted in-app (independent of mute state).
+        setCurrentReminder(prev => {
+          if (!prev && due.length) {
+            // Prefer the first due reminder that hasn't been acknowledged yet.
+            const candidate = due.find(d => !d.acknowledged) || due[0];
+            console.debug('[ReminderBell] Opening modal for due reminders, id=', candidate && candidate.id);
+            setShowModal(true);
+            return candidate;
+          }
+          return prev;
+        });
+
+        due.forEach(event => {
+          try {
+            // Avoid re-sending notifications for reminders already marked as notified
+            if (event.notified) return;
+            if (!mute) {
+              // include reminderTime so the notification helper can prepend Swatch time
+              console.debug('[ReminderBell] Sending notification for', event.id);
+              const sent = showNotification(event.title || 'Reminder', {
+                body: event.description || '',
+                tag: `reminder-${event.id}`,
+                reminderTime: event.reminderTime || null
+              });
+              if (sent) {
+                try { addOrUpdateEvent({ ...event, notified: true }); } catch (e) {}
+              }
+            }
+          } catch (e) {}
+        });
+      }
+
+      if (nextTs) {
+        const delay = Math.max(0, nextTs - now + 50);
+        console.debug('[ReminderBell] Scheduling timer in', delay, 'ms for nextTs=', new Date(nextTs).toISOString());
+        timer = setTimeout(() => {
+          console.debug('[ReminderBell] Timer fired (scheduled for', new Date(nextTs).toISOString(), ')');
+          const latest = eventsSignal.value;
+          const now2 = Date.now();
+          const newlyDue = latest.filter(ev => ev.reminderTime && !ev.dismissed && new Date(ev.reminderTime).getTime() <= now2);
+          console.debug('[ReminderBell] newlyDue ids after timer:', newlyDue.map(d => d.id));
+          if (newlyDue.length) {
+            setActiveReminders(prev => {
+              const ids = new Set(prev.map(p => p.id));
+              const merged = [...prev, ...newlyDue.filter(d => !ids.has(d.id))];
+              return merged;
+            });
+
+            // If modal isn't visible, open it and show the first newly due reminder.
+            setCurrentReminder(prev => {
+              if (!prev && newlyDue.length) {
+                // Prefer the first newly-due reminder that hasn't been acknowledged yet.
+                const candidate = newlyDue.find(d => !d.acknowledged) || newlyDue[0];
+                console.debug('[ReminderBell] Opening modal for newly due reminder, id=', candidate && candidate.id);
+                setShowModal(true);
+                return candidate;
+              }
+              return prev;
+            });
+
+            newlyDue.forEach(event => {
+              try {
+                if (event.notified) return;
+                if (!muteSignal.value) {
+                  console.debug('[ReminderBell] Sending notification for', event.id, '(timer)');
+                  const sent = showNotification(event.title || 'Reminder', {
+                    body: event.description || '',
+                    tag: `reminder-${event.id}`,
+                    reminderTime: event.reminderTime || null
+                  });
+                  if (sent) {
+                    try { addOrUpdateEvent({ ...event, notified: true }); } catch (e) {}
+                  }
+                }
+              } catch (e) {}
+            });
+          }
+        }, delay);
+      }
+    } catch (e) {
+      // ignore
+    }
+    return () => { if (timer) clearTimeout(timer); };
   }, [events]);
 
-  // Keep activeReminders in sync with events prop: if an event was removed
-  // from storage (e.g. dismissed via RemindersModal), ensure we clear it
-  // from the active list and hide the bell/modal when appropriate.
+  // Keep activeReminders in sync with events: drop any active reminders that no longer exist
   useEffect(() => {
     if (!events || events.length === 0) {
       setActiveReminders([]);
+      console.debug('[ReminderBell] No events: clearing active reminders and hiding modal');
       setCurrentReminder(null);
       setShowModal(false);
       return;
@@ -59,6 +146,7 @@ export function ReminderBell({ events, darkTheme, onDismiss, mute }) {
     setActiveReminders(prev => {
       const filtered = prev.filter(r => ids.has(r.id));
       if (filtered.length === 0) {
+        console.debug('[ReminderBell] Active reminders filtered to empty; hiding modal');
         setCurrentReminder(null);
         setShowModal(false);
       } else {
@@ -74,28 +162,30 @@ export function ReminderBell({ events, darkTheme, onDismiss, mute }) {
 
   const handleOk = () => {
     if (currentReminder) {
-      setActiveReminders(prev =>
-        prev.map(r => r.id === currentReminder.id ? { ...r, acknowledged: true } : r)
-      );
+      setActiveReminders(prev => prev.map(r => r.id === currentReminder.id ? { ...r, acknowledged: true } : r));
     }
+    console.debug('[ReminderBell] OK/Close clicked for', currentReminder && currentReminder.id);
+    // Clear the current reminder when the user closes the modal (but keep it
+    // in the activeReminders list). This allows newly-due reminders to become
+    // the current reminder (the scheduler sets currentReminder only when it is null).
+    setCurrentReminder(null);
     setShowModal(false);
   };
 
   const handleDismiss = () => {
     if (!currentReminder) return;
-
-    // remove from internal active list
     setActiveReminders(prev => {
       const remaining = prev.filter(r => r.id !== currentReminder.id);
-      // inform parent to remove from storage/state
+      // persist removal
+      removeEvent(currentReminder.id);
       if (typeof onDismiss === 'function') onDismiss(currentReminder.id);
 
       if (remaining.length > 0) {
-        // advance to next reminder and keep modal shown
         setCurrentReminder(remaining[0]);
+        console.debug('[ReminderBell] Dismissed reminder, showing next id=', remaining[0] && remaining[0].id);
         setShowModal(true);
       } else {
-        // no more active reminders -> clear and hide
+        console.debug('[ReminderBell] Dismissed last active reminder, hiding modal');
         setCurrentReminder(null);
         setShowModal(false);
       }
@@ -104,6 +194,7 @@ export function ReminderBell({ events, darkTheme, onDismiss, mute }) {
   };
 
   const handleBellClick = () => {
+    console.debug('[ReminderBell] Bell clicked; activeReminders ids=', activeReminders.map(a => a.id));
     if (activeReminders.length > 0) {
       setCurrentReminder(activeReminders[0]);
       setShowModal(true);
@@ -142,7 +233,8 @@ export function ReminderBell({ events, darkTheme, onDismiss, mute }) {
       <button 
         className={`btn position-relative ${bellClass}`}
         onClick={handleBellClick}
-        title={hasActiveReminders ? 'Reminders' : 'No active reminders'}
+        title={hasActiveReminders ? 'Recent Notifications' : 'No active reminders'}
+        aria-label={hasActiveReminders ? 'Recent Notifications' : 'No active reminders'}
         disabled={!hasActiveReminders}
       >
         <i className={`bi ${mute ? 'bi-bell-slash-fill' : (hasActiveReminders ? 'bi-bell-fill' : 'bi-bell')}`}></i>

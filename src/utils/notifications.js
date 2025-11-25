@@ -1,3 +1,5 @@
+import { localTimeToBeats } from './swatchTime';
+
 export async function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     try {
@@ -30,10 +32,30 @@ export async function showNotification(title, options = {}) {
     // ignore storage errors
   }
 
+  // If the caller passed a reminderTime (ISO string) or swatchTime, prepend the Swatch beat
+  try {
+    let swatchPrefix = '';
+    if (options.swatchTime) {
+      swatchPrefix = `@${String(options.swatchTime)}`;
+    } else if (options.reminderTime) {
+      const d = new Date(options.reminderTime);
+      if (!isNaN(d.getTime())) {
+        const beats = localTimeToBeats(d);
+        // keep integer beat display, padded to 3 digits
+        const beatInt = String(Math.trunc(Number(beats))).padStart(3, '0');
+        swatchPrefix = `@${beatInt}`;
+      }
+    }
+    if (swatchPrefix) {
+      title = `${swatchPrefix} - ${title}`;
+    }
+  } catch (e) {}
+
   // prefer service worker notifications if available
   try {
     const reg = await navigator.serviceWorker.getRegistration();
     if (reg && reg.showNotification) {
+      // Pass through options so SW can show same title (or compute its own swatch)
       reg.showNotification(title, options);
       return true;
     }

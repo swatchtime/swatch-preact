@@ -130,8 +130,9 @@ src/
 ├── components/
 │   ├── SwatchClock.jsx       # Main time display component
 │   ├── SettingsModal.jsx     # Settings configuration modal
-│   ├── ReminderModal.jsx     # Reminder creation modal
+│   ├── ReminderForm.jsx      # Reminder creation form/modal
 │   ├── ReminderBell.jsx      # Notification system
+│   ├── RemindersList.jsx     # Reminders list modal
 │   └── TimeCalculator.jsx    # Time conversion tool
 ├── utils/
 │   └── swatchTime.js         # Swatch time calculation utilities

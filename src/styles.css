@@ -4,6 +4,18 @@
   font-size: clamp(14px, 1.8vw, 18px);
 }
 
+/* Reset default body margin so the navbar can span edge-to-edge */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure navbar has no extra horizontal padding as a fallback */
+.navbar {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 /* Small helper to ensure the clock container doesn't overflow on tiny screens */
 .swatch-clock-wrap {
   max-width: 100%;
@@ -47,6 +59,31 @@
 
 .swatch-time {
   line-height: 1;
+}
+
+/* Smooth small visual shift when a new font loads: keep changes subtle */
+.fonts-loading .swatch-time,
+.fonts-loading .swatch-at {
+  opacity: 0.92;
+  transform: translateY(2px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.swatch-time,
+.swatch-at {
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+/* Preview styling inside Settings modal */
+.font-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0;
+}
+.font-preview .swatch-inline-flex {
+  gap: 0.35rem;
+  white-space: nowrap;
 }
 
 .swatch-localtime {

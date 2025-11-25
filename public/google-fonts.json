@@ -1,0 +1,8 @@
+{
+  "families": [
+    { "family": "Roboto", "weights": ["400", "700"], "display": "swap", "fallback": "sans-serif" },
+    { "family": "Open Sans", "weights": ["400", "700"], "display": "swap", "fallback": "sans-serif" },
+    { "family": "Lato", "weights": ["400", "700"], "display": "swap", "fallback": "sans-serif" },
+    { "family": "Google Sans Code", "weights": ["400", "700"], "display": "swap", "fallback": "monospace" }
+  ]
+}

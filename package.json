@@ -10,6 +10,7 @@
     "benchmark:cloud": "node tools/benchmark/benchmark-cloudflare.js"
   },
   "dependencies": {
+    "@preact/signals": "^2.5.1",
     "preact": "^10.27.2"
   },
   "devDependencies": {

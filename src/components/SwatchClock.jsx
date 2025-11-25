@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { calculateSwatchTime } from '../utils/swatchTime';
+import { settingsSignal } from '../signals/store';
 
 // Helper: convert a px value into rem based on current document root font-size
 function pxToRem(px) {
@@ -11,16 +12,32 @@ function pxToRem(px) {
   }
 }
 
-export function SwatchClock({ fontSize, fontColor, fontFamily, showLocalTime, timeFormat24, showCentibeats = true }) {
+export function SwatchClock() {
+  const settings = settingsSignal.value || {};
+  const fontSize = settings.fontSize || 100;
+  const fontColor = settings.fontColor || '#ffffff';
+  const fontFamily = settings.fontFamily || 'Roboto, sans-serif';
+  const showLocalTime = !!settings.showLocalTime;
+  const timeFormat24 = !!settings.timeFormat24;
+  const showCentibeats = settings.showCentibeats !== undefined ? !!settings.showCentibeats : true;
   const [swatchTime, setSwatchTime] = useState('000.00');
   const [localTime, setLocalTime] = useState('');
 
   useEffect(() => {
     const updateTime = () => {
       let beats = calculateSwatchTime();
-      if (!showCentibeats) {
-        beats = beats.split('.')[0];
-        beats = beats.padStart(3, '0');
+      // `calculateSwatchTime` returns a string like "9.09" or "123.45".
+      // Ensure the integer part is always 3 digits with leading zeros, and
+      // keep two decimal places when centibeats are enabled.
+      if (showCentibeats) {
+        const parts = String(beats).split('.');
+        const integer = String(parts[0] || '0').padStart(3, '0');
+        const fraction = (parts[1] || '00').padEnd(2, '0').slice(0, 2);
+        beats = `${integer}.${fraction}`;
+      } else {
+        // No centibeats: show only the integer portion, always 3 digits
+        const integerOnly = String(beats).split('.')[0] || '0';
+        beats = integerOnly.padStart(3, '0');
       }
       setSwatchTime(beats);
       if (showLocalTime) {

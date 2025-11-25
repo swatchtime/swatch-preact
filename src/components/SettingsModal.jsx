@@ -1,9 +1,13 @@
 import { ColorPicker } from './ColorPicker';
 import { useEffect, useState } from 'preact/hooks';
+import { settingsSignal, setSettings as setSettingsSignal } from '../signals/store';
+import { loadFontByFamilyName, familyFromSettingString } from '../utils/fonts';
+import { FontPreview } from './FontPreview';
 
-export function SettingsModal({ settings, onSettingsChange }) {
+export function SettingsModal() {
+    const settings = settingsSignal.value || {};
     const handleCheckboxChange = (key) => (e) => {
-      onSettingsChange({ ...settings, [key]: e.target.checked });
+      setSettingsSignal({ ...settings, [key]: e.target.checked });
     };
     const [sliderMax, setSliderMax] = useState(600);
 
@@ -18,22 +22,40 @@ export function SettingsModal({ settings, onSettingsChange }) {
           setSliderMax(computedMax);
           // clamp settings value if it exceeds new max
           if (settings.fontSize > computedMax) {
-            onSettingsChange({ ...settings, fontSize: computedMax });
+            setSettingsSignal({ ...settings, fontSize: computedMax });
           }
         }
       updateMax();
       window.addEventListener('resize', updateMax);
       return () => window.removeEventListener('resize', updateMax);
-    }, [onSettingsChange, settings]);
-  const fontFamilies = [
+    }, [settings]);
+  const [fontFamilies, setFontFamilies] = useState([
     'Roboto, sans-serif',
     'Open Sans, sans-serif',
     'Lato, sans-serif',
-    'Montserrat, sans-serif'
-  ];
+    'Google Sans Code, monospace'
+  ]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/google-fonts.json').then(r => r.ok ? r.json() : null).then(data => {
+      if (cancelled || !data || !Array.isArray(data.families)) return;
+      const list = data.families.map(f => `${f.family}, ${f.fallback || (f.family.toLowerCase().includes('code') ? 'monospace' : 'sans-serif')}`);
+      if (list.length) setFontFamilies(list);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const handleChange = (key, value) => {
-    onSettingsChange({ ...settings, [key]: value });
+    // When user changes fontFamily, lazy-load the selected Google Font
+    if (key === 'fontFamily') {
+      const fam = familyFromSettingString(value);
+      if (fam) {
+        // fire-and-forget load
+        loadFontByFamilyName(fam);
+      }
+    }
+    setSettingsSignal({ ...settings, [key]: value });
   };
 
   return (
@@ -52,11 +74,11 @@ export function SettingsModal({ settings, onSettingsChange }) {
                 customColor={settings.customColor}
                 selectedPreset={settings.colorPreset}
                 onChange={({ color, preset, customColor }) => {
-                  onSettingsChange({ ...settings, fontColor: color, colorPreset: preset, ...(customColor ? { customColor } : {}) });
+                  setSettingsSignal({ ...settings, fontColor: color, colorPreset: preset, ...(customColor ? { customColor } : {}) });
                 }}
               />
             </div>
-            
+
             <div className="mb-3">
               <label className="form-label">Font Size: {settings.fontSize}px</label>
               <input 
@@ -81,8 +103,11 @@ export function SettingsModal({ settings, onSettingsChange }) {
                 ))}
               </select>
             </div>
-            
-            <div className="form-check mb-3">
+            <div className="mb-3">
+              <label className="form-label">Preview</label>
+              <FontPreview fontFamily={settings.fontFamily} fontColor={settings.fontColor} showCentibeats={settings.showCentibeats} />
+            </div>
+            <div className="form-check mt-5 mb-3">
               <input 
                 className="form-check-input" 
                 type="checkbox" 

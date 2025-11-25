@@ -5,6 +5,7 @@ import { loadFontByFamilyName, familyFromSettingString } from '../utils/fonts';
 import { FontPreview } from './FontPreview';
 
 export function SettingsModal() {
+
     const settings = settingsSignal.value || {};
     const handleCheckboxChange = (key) => (e) => {
       setSettingsSignal({ ...settings, [key]: e.target.checked });
@@ -29,128 +30,129 @@ export function SettingsModal() {
       window.addEventListener('resize', updateMax);
       return () => window.removeEventListener('resize', updateMax);
     }, [settings]);
-  const [fontFamilies, setFontFamilies] = useState([
-    'Roboto, sans-serif',
-    'Open Sans, sans-serif',
-    'Lato, sans-serif',
-    'Google Sans Code, monospace'
-  ]);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/google-fonts.json').then(r => r.ok ? r.json() : null).then(data => {
-      if (cancelled || !data || !Array.isArray(data.families)) return;
-      const list = data.families.map(f => `${f.family}, ${f.fallback || (f.family.toLowerCase().includes('code') ? 'monospace' : 'sans-serif')}`);
-      if (list.length) setFontFamilies(list);
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
+    // real font list from google-fonts.json will replace these once fetched
+    const [fontFamilies, setFontFamilies] = useState([
+      'Sans-serif',
+      'Serif',
+      'Monospace'
+    ]);
 
-  const handleChange = (key, value) => {
-    // When user changes fontFamily, lazy-load the selected Google Font
-    if (key === 'fontFamily') {
-      const fam = familyFromSettingString(value);
-      if (fam) {
-        // fire-and-forget load
-        loadFontByFamilyName(fam);
+    useEffect(() => {
+      let cancelled = false;
+      fetch('/google-fonts.json').then(r => r.ok ? r.json() : null).then(data => {
+        if (cancelled || !data || !Array.isArray(data.families)) return;
+        const list = data.families.map(f => `${f.family}, ${f.fallback || (f.family.toLowerCase().includes('code') ? 'monospace' : 'sans-serif')}`);
+        if (list.length) setFontFamilies(list);
+      }).catch(() => {});
+      return () => { cancelled = true; };
+    }, []);
+
+    const handleChange = (key, value) => {
+      // When user changes fontFamily, lazy-load the selected Google Font
+      if (key === 'fontFamily') {
+        const fam = familyFromSettingString(value);
+        if (fam) {
+          // fire-and-forget load
+          loadFontByFamilyName(fam);
+        }
       }
-    }
-    setSettingsSignal({ ...settings, [key]: value });
-  };
+      setSettingsSignal({ ...settings, [key]: value });
+    };
 
-  return (
-    <div className="modal fade" id="settingsModal" tabIndex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title" id="settingsModalLabel">Settings</h5>
-            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div className="modal-body">
-            <div className="mb-3">
-              <ColorPicker
-                darkTheme={settings.darkTheme}
-                currentColor={settings.fontColor}
-                customColor={settings.customColor}
-                selectedPreset={settings.colorPreset}
-                onChange={({ color, preset, customColor }) => {
-                  setSettingsSignal({ ...settings, fontColor: color, colorPreset: preset, ...(customColor ? { customColor } : {}) });
-                }}
-              />
+    return (
+      <div className="modal fade" id="settingsModal" tabIndex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="settingsModalLabel">Settings</h5>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <div className="modal-body">
+              <div className="mb-3">
+                <ColorPicker
+                  darkTheme={settings.darkTheme}
+                  currentColor={settings.fontColor}
+                  customColor={settings.customColor}
+                  selectedPreset={settings.colorPreset}
+                  onChange={({ color, preset, customColor }) => {
+                    setSettingsSignal({ ...settings, fontColor: color, colorPreset: preset, ...(customColor ? { customColor } : {}) });
+                  }}
+                />
+              </div>
 
-            <div className="mb-3">
-              <label className="form-label">Font Size: {settings.fontSize}px</label>
-              <input 
-                type="range" 
-                className="form-range" 
-                min="20" 
-                max={sliderMax} 
-                value={settings.fontSize}
-                onChange={(e) => handleChange('fontSize', Math.min(parseInt(e.target.value), sliderMax))}
-              />
+              <div className="mb-3">
+                <label className="form-label">Font Size: {settings.fontSize}px</label>
+                <input 
+                  type="range" 
+                  className="form-range" 
+                  min="20" 
+                  max={sliderMax} 
+                  value={settings.fontSize}
+                  onChange={(e) => handleChange('fontSize', Math.min(parseInt(e.target.value), sliderMax))}
+                />
+              </div>
+              
+              <div className="mb-3">
+                <label className="form-label">Font Family</label>
+                <select 
+                  className="form-select"
+                  value={settings.fontFamily}
+                  onChange={(e) => handleChange('fontFamily', e.target.value)}
+                >
+                  {fontFamilies.map(font => (
+                    <option key={font} value={font}>{font.split(',')[0]}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Preview</label>
+                <FontPreview fontFamily={settings.fontFamily} fontColor={settings.fontColor} showCentibeats={settings.showCentibeats} />
+              </div>
+              <div className="form-check mt-5 mb-3">
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="showLocalTime"
+                  checked={settings.showLocalTime}
+                  onChange={handleCheckboxChange('showLocalTime')}
+                />
+                <label className="form-check-label" htmlFor="showLocalTime">
+                  Show Local Time
+                </label>
+              </div>
+              <div className="form-check mb-3">
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="showCentibeats"
+                  checked={settings.showCentibeats}
+                  onChange={handleCheckboxChange('showCentibeats')}
+                />
+                <label className="form-check-label" htmlFor="showCentibeats">
+                  Show centibeats (e.g. @626.43)
+                </label>
+              </div>
+              
+              <div className="form-check mb-3">
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="timeFormat24"
+                  checked={settings.timeFormat24}
+                  onChange={(e) => handleChange('timeFormat24', e.target.checked)}
+                />
+                <label className="form-check-label" htmlFor="timeFormat24">
+                  24-Hour Format
+                </label>
+              </div>
+              
             </div>
-            
-            <div className="mb-3">
-              <label className="form-label">Font Family</label>
-              <select 
-                className="form-select"
-                value={settings.fontFamily}
-                onChange={(e) => handleChange('fontFamily', e.target.value)}
-              >
-                {fontFamilies.map(font => (
-                  <option key={font} value={font}>{font.split(',')[0]}</option>
-                ))}
-              </select>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
-            <div className="mb-3">
-              <label className="form-label">Preview</label>
-              <FontPreview fontFamily={settings.fontFamily} fontColor={settings.fontColor} showCentibeats={settings.showCentibeats} />
-            </div>
-            <div className="form-check mt-5 mb-3">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="showLocalTime"
-                checked={settings.showLocalTime}
-                onChange={handleCheckboxChange('showLocalTime')}
-              />
-              <label className="form-check-label" htmlFor="showLocalTime">
-                Show Local Time
-              </label>
-            </div>
-            <div className="form-check mb-3">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="showCentibeats"
-                checked={settings.showCentibeats}
-                onChange={handleCheckboxChange('showCentibeats')}
-              />
-              <label className="form-check-label" htmlFor="showCentibeats">
-                Show centibeats (e.g. @626.43)
-              </label>
-            </div>
-            
-            <div className="form-check mb-3">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="timeFormat24"
-                checked={settings.timeFormat24}
-                onChange={(e) => handleChange('timeFormat24', e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="timeFormat24">
-                24-Hour Format
-              </label>
-            </div>
-            
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
 }

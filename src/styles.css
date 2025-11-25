@@ -221,3 +221,17 @@ html, body {
 
 .swatch-future { color: #28a745; }
 .swatch-past { color: #dc3545; }
+
+.footer-element {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.footer-text {
+  opacity: 0.3;
+  font-size: small;
+  font-family: sans-serif;
+}

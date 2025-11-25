@@ -4,6 +4,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { ReminderForm } from './components/ReminderForm';
 import { ReminderBell } from './components/ReminderBell';
 import { RemindersList } from './components/RemindersList';
+import { Footer } from './components/Footer';
 import { TimeCalculator } from './components/TimeCalculator';
 import { Navbar } from './components/Navbar';
 import { computeReminderDate } from './utils/reminderTime';
@@ -66,6 +67,7 @@ export function App() {
           <div className="col-lg-8">
             <SwatchClock />
           </div>
+          <Footer />
         </div>
       </div>
       <SettingsModal />

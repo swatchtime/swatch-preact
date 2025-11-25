@@ -1,8 +1,12 @@
 {
   "families": [
-    { "family": "Roboto", "weights": ["400", "700"], "display": "swap", "fallback": "sans-serif" },
-    { "family": "Open Sans", "weights": ["400", "700"], "display": "swap", "fallback": "sans-serif" },
-    { "family": "Lato", "weights": ["400", "700"], "display": "swap", "fallback": "sans-serif" },
-    { "family": "Google Sans Code", "weights": ["400", "700"], "display": "swap", "fallback": "monospace" }
+    { "family": "Roboto", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
+    { "family": "Open Sans", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
+    { "family": "Lato", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
+    { "family": "IBM Plex Mono", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
+    { "family": "Courier Prime", "weights": ["400"], "display": "swap", "fallback": "monospace" },
+    { "family": "Geist Mono", "weights": ["400"], "display": "swap", "fallback": "monospace" },
+    { "family": "Doto", "weights": ["400"], "display": "swap", "fallback": "monospace" },
+    { "family": "Martian Mono", "weights": ["400"], "display": "swap", "fallback": "monospace" }
   ]
 }

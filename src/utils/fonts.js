@@ -57,17 +57,40 @@ export async function loadFontByFamilyName(familyName) {
       link.rel = 'stylesheet';
       link.href = href;
       link.setAttribute('data-google-font', fam.family);
+      // enable CORS on the stylesheet link to help with font fetching in some setups
+      link.crossOrigin = 'anonymous';
       // Mark that a font load started
       startLoading();
       document.head.appendChild(link);
-      // Wait for font availability (modern browsers) but guard with a timeout
+
+      // Wait for the stylesheet to be applied (onload) and then wait for
+      // the font to be available via the Font Loading API. Use a slightly
+      // longer timeout because some fonts (or slow networks) take more time.
       try {
         await Promise.race([
-          document.fonts.load(`1rem "${fam.family}"`),
-          new Promise((resolve) => setTimeout(resolve, 1500))
+          new Promise((resolve) => {
+            // If the browser supports onload for link, wait for it; otherwise
+            // fall back to a short delay so we still attempt to load the font.
+            if ('onload' in link) {
+              link.addEventListener('load', () => resolve());
+              link.addEventListener('error', () => resolve());
+            } else {
+              setTimeout(resolve, 300);
+            }
+          }),
+          new Promise((resolve) => setTimeout(resolve, 2500))
+        ]);
+
+        // Attempt to load the font explicitly including weight. Use the first
+        // declared weight (or 400) to form a clearer request for the FontFaceSet.
+        const weight = (fam.weights && fam.weights[0]) ? fam.weights[0] : '400';
+        await Promise.race([
+          document.fonts.load(`normal ${weight} 1rem "${fam.family}"`),
+          new Promise((resolve) => setTimeout(resolve, 3500))
         ]);
       } catch (e) {
-        // ignore
+        // ignore errors but leave a debug trace
+        // console.debug('loadFontByFamilyName: load error', fam.family, e);
       } finally {
         finishLoading();
       }
@@ -75,9 +98,10 @@ export async function loadFontByFamilyName(familyName) {
       // stylesheet already present: still try to wait for the font to be ready
       startLoading();
       try {
+        const weight = (fam.weights && fam.weights[0]) ? fam.weights[0] : '400';
         await Promise.race([
-          document.fonts.load(`1rem "${fam.family}"`),
-          new Promise((resolve) => setTimeout(resolve, 800))
+          document.fonts.load(`normal ${weight} 1rem "${fam.family}"`),
+          new Promise((resolve) => setTimeout(resolve, 2000))
         ]);
       } catch (e) {
         // ignore

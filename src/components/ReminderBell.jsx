@@ -242,7 +242,7 @@ export function ReminderBell() {
 
       {showModal && currentReminder && (
         <div className="modal show d-block modal-overlay" tabIndex="-1">
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Reminder</h5>

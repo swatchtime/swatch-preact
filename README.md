@@ -66,78 +66,56 @@ Convert between Swatch and Local time:
 - **Real-time updates**: Changes in one field automatically update the other
 - **24-hour format** for local time input/output
 
-## Installation
-
-### Prerequisites
-- Node.js 20.x or later
-- npm 10.x or later
-
-### Setup
-```bash
-# Clone the repository
-git clone https://github.com/kendawson-online/swatch-preact.git
-cd swatch-preact
-
-# Install dependencies
-npm install
-```
-
-## Usage
-
-### Development Server
-Start the development server with hot module replacement:
-```bash
-npm run dev
-```
-The app will be available at `http://localhost:5173/`
-
-### Production Build
-Build the app for production:
-```bash
-npm run build
-```
-The optimized build will be in the `dist/` directory.
-
-### Preview Production Build
-Preview the production build locally:
-```bash
-npm run preview
-```
-
-## Testing
-
-Currently, the project uses Vite's built-in build validation. To test:
-```bash
-# Build the project (validates all imports and exports)
-npm run build
-
-# Run the development server and manually test features
-npm run dev
-```
-
 ## Technology Stack
 
 - **Preact 10.27.2**: Fast 3kB alternative to React with the same modern API
 - **Vite 7.2.2**: Next-generation frontend tooling for fast development
 - **Bootstrap 5.3.8**: Latest Bootstrap for responsive UI and modals
 - **Bootstrap Icons**: Icon library for UI elements
-- **Google Fonts**: Roboto, Open Sans, Lato, and Montserrat
+- **Google Fonts**:  stored in a JSON file at: public/google-fonts.json
 
 ## Architecture
 
 ```
-src/
-├── components/
-│   ├── SwatchClock.jsx       # Main time display component
-│   ├── SettingsModal.jsx     # Settings configuration modal
-│   ├── ReminderForm.jsx      # Reminder creation form/modal
-│   ├── ReminderBell.jsx      # Notification system
-│   ├── RemindersList.jsx     # Reminders list modal
-│   └── TimeCalculator.jsx    # Time conversion tool
-├── utils/
-│   └── swatchTime.js         # Swatch time calculation utilities
-├── app.jsx                   # Main application component
-└── main.jsx                  # Application entry point
+swatch-preact/
+├── index.html
+├── package.json
+├── package-lock.json
+├── public
+│   ├── google-fonts.json
+│   ├── manifest.json
+│   ├── screenshot.png
+│   ├── swiss-flag.svg
+│   └── sw.js
+├── README.md
+├── src
+│   ├── app.jsx
+│   ├── components
+│   │   ├── ColorPicker.jsx
+│   │   ├── FontPreview.jsx
+│   │   ├── Footer.jsx
+│   │   ├── Navbar.jsx
+│   │   ├── ReminderBell.jsx
+│   │   ├── ReminderForm.jsx
+│   │   ├── RemindersList.jsx
+│   │   ├── SettingsModal.jsx
+│   │   ├── SwatchClock.jsx
+│   │   └── TimeCalculator.jsx
+│   ├── hooks
+│   │   └── useBootstrapModal.js
+│   ├── main.jsx
+│   ├── signals
+│   │   └── store.js
+│   ├── styles.css
+│   └── utils
+│       ├── fonts.js
+│       ├── notifications.js
+│       ├── reminderTime.js
+│       ├── storage.js
+│       └── swatchTime.js
+└── vite.config.js
+
+7 directories, 30 files
 ```
 
 ## Browser Support
@@ -145,10 +123,15 @@ src/
 - Modern browsers with ES6+ support
 - Chrome, Firefox, Safari, Edge (latest versions)
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## License
 
-Released under the MIT [LICENSE].
+© 2025 Swatch Beats Revival
+All rights reserved.
+This is not open-source software. You may not redistribute, modify, or create derivative works without explicit written permission.
+
+Contact: admin@swatchtime.online
+
+
+## Disclaimer:
+
+This site is an independent revival of Swatch Internet Time and is not affiliated with Swatch Group. You can visit the official Swatch web site here: <a href="https://www.swatch.com/en-us/" target="_blank" rel="noopener noreferrer">https://www.swatch.com/</a>

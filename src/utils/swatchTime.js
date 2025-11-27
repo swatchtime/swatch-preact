@@ -5,21 +5,10 @@
  * The day starts at midnight BMT (Biel Mean Time, UTC+1)
  */
 export function calculateSwatchTime(date = new Date()) {
-  // Get time in BMT (UTC+1)
-  const utcHours = date.getUTCHours();
-  const utcMinutes = date.getUTCMinutes();
-  const utcSeconds = date.getUTCSeconds();
-  const utcMilliseconds = date.getUTCMilliseconds();
-  
-  // Convert to BMT (UTC+1)
-  const bmtHours = (utcHours + 1) % 24;
-  
-  // Calculate total seconds since midnight BMT
-  const totalSeconds = (bmtHours * 3600) + (utcMinutes * 60) + utcSeconds + (utcMilliseconds / 1000);
-  
-  // Convert to beats (1 day = 86400 seconds = 1000 beats)
-  const beats = (totalSeconds / 86.4) % 1000;
-  
+  // Canonical method: seconds since UTC midnight + 3600s (Biel = UTC+1), wrap 0..86399.999
+  const utcSecondsSinceMidnight = date.getUTCHours() * 3600 + date.getUTCMinutes() * 60 + date.getUTCSeconds() + date.getUTCMilliseconds() / 1000;
+  const bielSeconds = (utcSecondsSinceMidnight + 3600) % 86400;
+  const beats = bielSeconds / 86.4;
   return beats.toFixed(2);
 }
 

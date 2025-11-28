@@ -8,6 +8,7 @@ export const defaultSettings = {
   fontFamily: 'Roboto, sans-serif',
   showLocalTime: false,
   timeFormat24: true,
+  showSeconds: true,
   darkTheme: true,
   showCentibeats: true,
   colorPreset: 'dark-default',

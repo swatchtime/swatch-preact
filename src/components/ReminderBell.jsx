@@ -52,10 +52,12 @@ export function ReminderBell() {
         setCurrentReminder(prev => {
           if (!prev && due.length) {
             // Prefer the first due reminder that hasn't been acknowledged yet.
-            const candidate = due.find(d => !d.acknowledged) || due[0];
-            console.debug('[ReminderBell] Opening modal for due reminders, id=', candidate && candidate.id);
-            setShowModal(true);
-            return candidate;
+            const candidate = due.find(d => !d.acknowledged);
+            if (candidate) {
+              console.debug('[ReminderBell] Opening modal for due reminders, id=', candidate && candidate.id);
+              setShowModal(true);
+              return candidate;
+            }
           }
           return prev;
         });
@@ -100,10 +102,12 @@ export function ReminderBell() {
             setCurrentReminder(prev => {
               if (!prev && newlyDue.length) {
                 // Prefer the first newly-due reminder that hasn't been acknowledged yet.
-                const candidate = newlyDue.find(d => !d.acknowledged) || newlyDue[0];
-                console.debug('[ReminderBell] Opening modal for newly due reminder, id=', candidate && candidate.id);
-                setShowModal(true);
-                return candidate;
+                const candidate = newlyDue.find(d => !d.acknowledged);
+                if (candidate) {
+                  console.debug('[ReminderBell] Opening modal for newly due reminder, id=', candidate && candidate.id);
+                  setShowModal(true);
+                  return candidate;
+                }
               }
               return prev;
             });
@@ -168,6 +172,8 @@ export function ReminderBell() {
     // Clear the current reminder when the user closes the modal (but keep it
     // in the activeReminders list). This allows newly-due reminders to become
     // the current reminder (the scheduler sets currentReminder only when it is null).
+    // Persist the acknowledged state so we don't re-open this reminder after reload.
+    try { if (currentReminder && currentReminder.id) addOrUpdateEvent({ ...currentReminder, acknowledged: true }); } catch (e) {}
     setCurrentReminder(null);
     setShowModal(false);
   };

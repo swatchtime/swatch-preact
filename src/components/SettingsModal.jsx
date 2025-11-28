@@ -82,7 +82,7 @@ export function SettingsModal() {
               </div>
 
               <div className="mb-3">
-                <label className="form-label">Font Size: {settings.fontSize}px</label>
+                <label className="form-label">Font size: {settings.fontSize}px</label>
                 <input 
                   type="range" 
                   className="form-range" 
@@ -94,7 +94,7 @@ export function SettingsModal() {
               </div>
               
               <div className="mb-3">
-                <label className="form-label">Font Family</label>
+                <label className="form-label">Font family</label>
                 <select 
                   className="form-select"
                   value={settings.fontFamily}
@@ -118,7 +118,19 @@ export function SettingsModal() {
                   onChange={handleCheckboxChange('showLocalTime')}
                 />
                 <label className="form-check-label" htmlFor="showLocalTime">
-                  Show Local Time
+                  Show local time
+                </label>
+              </div>
+              <div className="form-check mb-3">
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="showSeconds"
+                  checked={settings.showSeconds}
+                  onChange={handleCheckboxChange('showSeconds')}
+                />
+                <label className="form-check-label" htmlFor="showSeconds">
+                  Show seconds
                 </label>
               </div>
               <div className="form-check mb-3">
@@ -143,7 +155,7 @@ export function SettingsModal() {
                   onChange={(e) => handleChange('timeFormat24', e.target.checked)}
                 />
                 <label className="form-check-label" htmlFor="timeFormat24">
-                  24-Hour Format
+                  24-hour format
                 </label>
               </div>
               

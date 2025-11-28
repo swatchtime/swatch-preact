@@ -1,7 +1,8 @@
 import { ReminderBell } from './ReminderBell';
-import { settingsSignal, setSettings as setSettingsSignal, eventsSignal, removeEvent } from '../signals/store';
+import { settingsSignal, setSettings as setSettingsSignal, eventsSignal } from '../signals/store';
 
 export function Navbar() {
+
   const currentSettings = settingsSignal.value;
   const currentEvents = eventsSignal.value;
 
@@ -9,9 +10,6 @@ export function Navbar() {
     const nextDark = !currentSettings.darkTheme;
     const defaultColor = nextDark ? '#ffffff' : '#000000';
     const preset = nextDark ? 'dark-default' : 'light-default';
-    // Keep the app's font color default (white for dark, black for light),
-    // but prefer a non-preset custom color for the color-picker when switching
-    // to light theme so the 'Choose Color' control shows orange (#ff7800).
     const nextCustom = nextDark ? defaultColor : '#ff7800';
     const next = { ...currentSettings, darkTheme: nextDark, fontColor: defaultColor, colorPreset: preset, customColor: nextCustom };
     setSettingsSignal(next);
@@ -20,11 +18,11 @@ export function Navbar() {
   const count = currentEvents ? currentEvents.filter(e => !e.dismissed).length : 0;
 
   return (
-    <nav className="navbar navbar-expand-lg bg-body-tertiary mb-4 px-0">
+    <nav className="navbar navbar-expand-lg bg-secondary-subtle mb-4 px-0 border-2 border-bottom border-secondary">
       <div className="container-fluid px-3 d-flex align-items-center">
 
         <a className="navbar-brand mb-0 h1 d-flex align-items-center" href="/">
-          <img src="/swiss-flag.svg" alt="" width="30" height="30" />
+          <img src="/beat-clock.png" alt="" width="30" height="30" />
           <span className="ms-2">Swatch Internet Time</span>
         </a>
 

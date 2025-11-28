@@ -1,14 +1,14 @@
 {
   "name": "Swatch Internet Time",
   "short_name": "SwatchTime",
-  "description": "A small Preact app showing Swatch Internet Time, reminders, and converters.",
+  "description": "An app to display Swatch Internet Time with reminders and a time-conversion calculator.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#212529",
   "theme_color": "#212529",
   "icons": [
     {
-      "src": "/swiss-flag.svg",
+      "src": "/beat-clock.png",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"

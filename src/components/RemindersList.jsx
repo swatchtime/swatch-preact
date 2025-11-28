@@ -115,7 +115,7 @@ export function RemindersList() {
 
   return (
     <div className="modal fade" id="remindersListModal" tabIndex="-1" aria-labelledby="remindersListModalLabel" aria-hidden="true">
-      <div className="modal-dialog modal-lg">
+      <div className="modal-dialog modal-lg modal-dialog-scrollable">
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="remindersListModalLabel">Reminders</h5>

@@ -13,12 +13,16 @@ export function ReminderForm() {
     return `${y}-${m}-${day}`;
   })();
 
-  const [reminderData, setReminderData] = useState({
-    title: '',
-    description: '',
-    startDate: today,
-    startTime: '',
-    swatchTime: ''
+  const DRAFT_KEY = 'reminder_draft_v1';
+  const [reminderData, setReminderData] = useState(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return { title: '', description: '', startDate: today, startTime: '', swatchTime: '', ...parsed };
+      }
+    } catch (e) {}
+    return { title: '', description: '', startDate: today, startTime: '', swatchTime: '' };
   });
   const [errors, setErrors] = useState({});
 
@@ -123,6 +127,7 @@ export function ReminderForm() {
 
     // Reset form (preserve today's date)
     setReminderData({ title: '', description: '', startDate: today, startTime: '', swatchTime: '' });
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
   };
 
   useEffect(() => {
@@ -137,11 +142,38 @@ export function ReminderForm() {
         id: sel.id
       });
     } else {
-      setReminderData({ title: '', description: '', startDate: today, startTime: '', swatchTime: '' });
+      // If there is a saved draft, keep it; otherwise clear to defaults
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          setReminderData({ title: '', description: '', startDate: today, startTime: '', swatchTime: '', ...parsed });
+        } else {
+          setReminderData({ title: '', description: '', startDate: today, startTime: '', swatchTime: '' });
+        }
+      } catch (e) {
+        setReminderData({ title: '', description: '', startDate: today, startTime: '', swatchTime: '' });
+      }
     }
   }, [selectedEventSignal.value]);
 
   const handleChange = (field, value) => setReminderData({ ...reminderData, [field]: value });
+
+  // Persist draft on every change
+  useEffect(() => {
+    try {
+      const toSave = {
+        title: reminderData.title || '',
+        description: reminderData.description || '',
+        startDate: reminderData.startDate || today,
+        startTime: reminderData.startTime || '',
+        swatchTime: reminderData.swatchTime || ''
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(toSave));
+    } catch (e) {}
+  }, [reminderData]);
+
+  const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} };
 
   return (
     <div className="modal fade" id="reminderFormModal" tabIndex="-1" aria-labelledby="reminderFormModalLabel" aria-hidden="true">
@@ -181,7 +213,7 @@ export function ReminderForm() {
               </div>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#remindersListModal">Cancel</button>
+              <button type="button" className="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#remindersListModal" onClick={clearDraft}>Cancel</button>
               <button type="submit" className="btn btn-primary">Create Reminder</button>
             </div>
           </form>

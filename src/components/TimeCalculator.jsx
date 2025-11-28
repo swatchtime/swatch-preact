@@ -3,6 +3,7 @@ import { calculateSwatchTime, beatsToLocalTime, normalizeBeats } from '../utils/
 import { settingsSignal } from '../signals/store';
 
 export function TimeCalculator() {
+
   const settings = settingsSignal.value || {};
   const [swatchValue, setSwatchValue] = useState('');
   const [localHours, setLocalHours] = useState('');
@@ -10,22 +11,18 @@ export function TimeCalculator() {
   const [localSeconds, setLocalSeconds] = useState('');
   const [localAmPm, setLocalAmPm] = useState('AM');
 
-  // Helper: format beats for display: pad integer part to 3 digits, preserve decimals
   function formatBeatsDisplay(s) {
     if (!s) return '';
     const parts = String(s).split('.');
     const intPart = parts[0].padStart(3, '0');
     if (parts.length === 1) return intPart;
     const dec = parts[1];
-    // limit decimals to max 2
     return `${intPart}.${(dec + '00').slice(0, 2)}`;
   }
 
   const handleSwatchChange = (value) => {
-    // accept raw input but don't allow more than 6 chars (e.g. 120.00)
     let raw = String(value || '').trim();
     if (raw.startsWith('@')) raw = raw.slice(1);
-    // limit to digits and dot
     raw = raw.replace(/[^0-9.]/g, '');
     if (raw.length > 6) raw = raw.slice(0, 6);
     setSwatchValue(raw);
@@ -38,7 +35,6 @@ export function TimeCalculator() {
       setLocalHours(''); setLocalMinutes(''); setLocalSeconds('');
       return;
     }
-    // format for display
     const display = formatBeatsDisplay(normalized);
     setSwatchValue(display);
 
@@ -49,7 +45,6 @@ export function TimeCalculator() {
       let mm = localDate.getMinutes();
       let ss = localDate.getSeconds();
       if (settings && settings.timeFormat24 === false) {
-        // convert to 12-hour
         setLocalAmPm(hh >= 12 ? 'PM' : 'AM');
         hh = ((hh + 11) % 12) + 1; // 1-12
       }
@@ -60,22 +55,17 @@ export function TimeCalculator() {
   };
 
   const handleLocalChange = (hours, minutes, seconds, ampm, onConvert = false) => {
-    // allow seconds to be optional; do not auto-fill seconds in the input state
-    // so the user can leave it blank while typing. We will treat missing
-    // seconds as '00' only when performing a conversion.
     setLocalHours(hours);
     setLocalMinutes(minutes);
     setLocalSeconds(seconds);
     if (ampm) setLocalAmPm(ampm);
 
-    // convert when hours and minutes are provided (seconds optional)
     if (hours !== '' && minutes !== '') {
       let h = parseInt(hours) || 0;
       const m = parseInt(minutes) || 0;
       const s = parseInt(seconds || '0') || 0;
 
       if (settings && settings.timeFormat24 === false) {
-        // convert 12-hour + AM/PM into 24-hour
         if ((ampm || localAmPm) === 'PM' && h < 12) h = h + 12;
         if ((ampm || localAmPm) === 'AM' && h === 12) h = 0;
       }
@@ -84,12 +74,8 @@ export function TimeCalculator() {
         const date = new Date();
         date.setHours(h, m, s, 0);
         const beats = calculateSwatchTime(date);
-        // format beats for display
         setSwatchValue(formatBeatsDisplay(beats));
       } else if (onConvert) {
-        // If conversion was explicitly requested and values are out of range,
-        // treat this like the Clear action: clear the beats and reset the
-        // local inputs (so the form is empty and ready for new input).
         setSwatchValue('');
         setLocalHours('');
         setLocalMinutes('');
@@ -101,10 +87,6 @@ export function TimeCalculator() {
 
   const handleConvertClick = (e) => {
     e.preventDefault();
-    // Prefer converting the swatch beats input when it's present. If it's
-    // empty, fall back to converting the local time inputs (this allows the
-    // user to convert either direction predictably). When converting local
-    // inputs explicitly, pass onConvert=true so invalid values are reset.
     if (swatchValue && swatchValue.trim() !== '') {
       handleSwatchSubmit();
     } else if (localHours !== '' || localMinutes !== '' || localSeconds !== '') {

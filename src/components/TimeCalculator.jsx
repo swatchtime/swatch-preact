@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { calculateSwatchTime, beatsToLocalTime, normalizeBeats } from '../utils/swatchTime';
 import { settingsSignal, setSettings as setSettingsSignal } from '../signals/store';
 
@@ -10,6 +10,26 @@ export function TimeCalculator() {
   const [localMinutes, setLocalMinutes] = useState('');
   const [localSeconds, setLocalSeconds] = useState('');
   const [localAmPm, setLocalAmPm] = useState('AM');
+  const prevFormatRef = useRef(undefined);
+
+  // Helpers to convert between 24-hour and 12-hour representations.
+  const to12Hour = (hour24Str) => {
+    if (!hour24Str && hour24Str !== '0') return null;
+    const n = Number(hour24Str);
+    if (Number.isNaN(n) || n < 0 || n > 23) return null;
+    const ampm = n >= 12 ? 'PM' : 'AM';
+    const hour12 = ((n + 11) % 12) + 1; // maps 0->12, 12->12
+    return { hour12: String(hour12).padStart(2, '0'), ampm };
+  };
+
+  const to24Hour = (hour12Str, ampmStr) => {
+    if (!hour12Str) return null;
+    const n = Number(hour12Str);
+    if (Number.isNaN(n) || n < 1 || n > 12) return null;
+    let hh = n % 12; // 12 -> 0
+    if ((ampmStr || '').toUpperCase() === 'PM') hh += 12;
+    return String(hh).padStart(2, '0');
+  };
 
   function formatBeatsDisplay(s) {
     if (!s) return '';
@@ -93,6 +113,39 @@ export function TimeCalculator() {
       handleLocalChange(localHours, localMinutes, localSeconds, localAmPm, true);
     }
   };
+
+  // When the global timeFormat24 setting toggles, convert the local inputs
+  // between 12/24-hour representations where possible. If conversion isn't
+  // possible (invalid/partial input), clear the form to avoid impossible values.
+  useEffect(() => {
+    const currentFormat24 = !!(settings && settings.timeFormat24);
+    if (prevFormatRef.current === undefined) {
+      prevFormatRef.current = currentFormat24;
+      return;
+    }
+    if (prevFormatRef.current === currentFormat24) return;
+
+    if (currentFormat24) {
+      // switching to 24-hour: convert from local 12-hour inputs
+      const conv = to24Hour(localHours, localAmPm);
+      if (conv !== null) {
+        setLocalHours(conv);
+      } else {
+        // cannot convert safely; clear inputs
+        setLocalHours(''); setLocalMinutes(''); setLocalSeconds(''); setLocalAmPm('AM');
+      }
+    } else {
+      // switching to 12-hour: convert from local 24-hour input
+      const conv = to12Hour(localHours);
+      if (conv !== null) {
+        setLocalHours(conv.hour12);
+        setLocalAmPm(conv.ampm);
+      } else {
+        setLocalHours(''); setLocalMinutes(''); setLocalSeconds(''); setLocalAmPm('AM');
+      }
+    }
+    prevFormatRef.current = currentFormat24;
+  }, [settings && settings.timeFormat24]);
 
   return (
     <div className="modal fade" id="calculatorModal" tabIndex="-1" aria-labelledby="calculatorModalLabel" aria-hidden="true">
@@ -183,6 +236,7 @@ export function TimeCalculator() {
                         <option>PM</option>
                       </select>
                     </div>
+                    
                   </div>
                 ) : (
                   <div className="row g-2">

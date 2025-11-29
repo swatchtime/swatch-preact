@@ -32,7 +32,7 @@ export function Navbar() {
           aria-haspopup="dialog"
           title="About Swatch Internet Time"
         >
-          <img src="/beat-clock.png" alt="Logo" title="Swatch Internet Time" width="30" height="30" />
+          <img src="/beat-clock.png" alt="Logo" width="30" height="30" />
           <span className="ms-2 d-none d-md-block">Swatch Internet Time</span>
         </button>
 

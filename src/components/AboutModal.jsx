@@ -19,7 +19,11 @@ export function AboutModal({ deferredPrompt, onInstall }) {
 
       const displayStandalone = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
       const iosStandalone = typeof window !== 'undefined' && window.navigator && window.navigator.standalone === true;
-      setIsInstalled(!!(displayStandalone || iosStandalone));
+      const detected = !!(displayStandalone || iosStandalone);
+      setIsInstalled(detected);
+      if (detected) {
+        try { localStorage.setItem('swatch_pwa_installed', '1'); } catch (err) { /* ignore */ }
+      }
     };
     checkInstalled();
 

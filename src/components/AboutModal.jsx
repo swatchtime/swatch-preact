@@ -1,5 +1,38 @@
 
+import { useState, useEffect } from 'preact/hooks';
+
 export function AboutModal({ deferredPrompt, onInstall }) {
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    const checkInstalled = () => {
+      const displayStandalone = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+      const iosStandalone = typeof window !== 'undefined' && window.navigator && window.navigator.standalone === true;
+      setIsInstalled(!!(displayStandalone || iosStandalone));
+    };
+    checkInstalled();
+
+    const onAppInstalled = () => setIsInstalled(true);
+    window.addEventListener && window.addEventListener('appinstalled', onAppInstalled);
+
+    const mm = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)');
+    const mmChange = (e) => setIsInstalled(!!e.matches);
+    if (mm && mm.addEventListener) mm.addEventListener('change', mmChange);
+    // @ts-ignore: fallback for older browsers that only implement addListener
+    else if (mm && mm.addListener) mm.addListener(mmChange);
+
+    return () => {
+      window.removeEventListener && window.removeEventListener('appinstalled', onAppInstalled);
+      if (mm && mm.removeEventListener) mm.removeEventListener('change', mmChange);
+      // @ts-ignore: fallback for older browsers that only implement removeListener
+      else if (mm && mm.removeListener) mm.removeListener(mmChange);
+    };
+  }, []);
+
+  const titleText = isInstalled ? 'You have installed this app on your device' : 'Install this app on your device';
+  const btnClass = isInstalled ? 'btn btn-lg btn-secondary shadow' : 'btn btn-lg btn-success shadow';
+  const btnDisabled = isInstalled || !deferredPrompt;
+
   return (
     <div className="modal fade" id="aboutModal" tabIndex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
       <div className="modal-dialog modal-lg modal-fullscreen-md-down">
@@ -9,17 +42,17 @@ export function AboutModal({ deferredPrompt, onInstall }) {
             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div className="modal-body">
-
-            <div className="mb-5 text-center" title="Install this app on your device">
+            <div className="mb-5 text-center" title={titleText}>
               <button
                 type="button"
                 id="pwa-install-btn"
-                className="btn btn-lg btn-success shadow"
+                className={btnClass}
                 onClick={onInstall}
-                disabled={!deferredPrompt}
+                disabled={btnDisabled}
+                aria-disabled={btnDisabled}
               >
-                <i class="bi bi-pc-display-horizontal me-2 py-2 px-3"></i>
-                Install This App
+                <i className="bi bi-pc-display-horizontal me-2 py-2 px-3"></i>
+                {isInstalled ? 'Installed' : 'Install This App'}
               </button>
             </div>
             

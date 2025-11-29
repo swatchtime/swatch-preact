@@ -35,12 +35,25 @@ export function App() {
     return () => window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
   }, []);
 
+  // Persist install state when the PWA is installed so other tabs can be aware.
+  useEffect(() => {
+    const onAppInstalled = () => {
+      try { localStorage.setItem('swatch_pwa_installed', '1'); } catch (err) { /* ignore */ }
+      console.debug('[App] appinstalled event - persisted install flag');
+    };
+    window.addEventListener && window.addEventListener('appinstalled', onAppInstalled);
+    return () => window.removeEventListener && window.removeEventListener('appinstalled', onAppInstalled);
+  }, []);
+
   const showInstallPrompt = async () => {
     if (!deferredPrompt) return;
     try {
       deferredPrompt.prompt();
       const choice = await deferredPrompt.userChoice;
       console.debug('[App] Install prompt choice:', choice && choice.outcome);
+      if (choice && choice.outcome === 'accepted') {
+        try { localStorage.setItem('swatch_pwa_installed', '1'); } catch (err) { /* ignore */ }
+      }
     } catch (err) {
       console.debug('[App] Install prompt error', err);
     }

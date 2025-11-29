@@ -6,13 +6,27 @@ export function AboutModal({ deferredPrompt, onInstall }) {
 
   useEffect(() => {
     const checkInstalled = () => {
+      // prefer a persisted flag written by the installing context
+      try {
+        const persisted = localStorage.getItem('swatch_pwa_installed') === '1';
+        if (persisted) {
+          setIsInstalled(true);
+          return;
+        }
+      } catch (err) {
+        // ignore storage errors
+      }
+
       const displayStandalone = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
       const iosStandalone = typeof window !== 'undefined' && window.navigator && window.navigator.standalone === true;
       setIsInstalled(!!(displayStandalone || iosStandalone));
     };
     checkInstalled();
 
-    const onAppInstalled = () => setIsInstalled(true);
+    const onAppInstalled = () => {
+      setIsInstalled(true);
+      try { localStorage.setItem('swatch_pwa_installed', '1'); } catch (err) { /* ignore */ }
+    };
     window.addEventListener && window.addEventListener('appinstalled', onAppInstalled);
 
     const mm = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(display-mode: standalone)');
@@ -21,11 +35,20 @@ export function AboutModal({ deferredPrompt, onInstall }) {
     // @ts-ignore: fallback for older browsers that only implement addListener
     else if (mm && mm.addListener) mm.addListener(mmChange);
 
+    const onStorage = (e) => {
+      if (!e) return;
+      if (e.key === 'swatch_pwa_installed') {
+        setIsInstalled(e.newValue === '1');
+      }
+    };
+    window.addEventListener && window.addEventListener('storage', onStorage);
+
     return () => {
       window.removeEventListener && window.removeEventListener('appinstalled', onAppInstalled);
       if (mm && mm.removeEventListener) mm.removeEventListener('change', mmChange);
       // @ts-ignore: fallback for older browsers that only implement removeListener
       else if (mm && mm.removeListener) mm.removeListener(mmChange);
+      window.removeEventListener && window.removeEventListener('storage', onStorage);
     };
   }, []);
 

@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { calculateSwatchTime, beatsToLocalTime, normalizeBeats } from '../utils/swatchTime';
-import { settingsSignal } from '../signals/store';
+import { settingsSignal, setSettings as setSettingsSignal } from '../signals/store';
 
 export function TimeCalculator() {
 
@@ -96,7 +96,7 @@ export function TimeCalculator() {
 
   return (
     <div className="modal fade" id="calculatorModal" tabIndex="-1" aria-labelledby="calculatorModalLabel" aria-hidden="true">
-      <div className="modal-dialog modal-lg">
+      <div className="modal-dialog modal-lg modal-fullscreen-md-down">
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="calculatorModalLabel">Time Converter</h5>
@@ -125,7 +125,19 @@ export function TimeCalculator() {
             </div>
             
             <div className="mb-3">
-                <label className="form-label">Local Time {(settings && settings.timeFormat24 === false) ? '(12-hour)' : '(24-hour)'}</label>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <label className="form-label mb-0">Local Time {(settings && settings.timeFormat24 === false) ? '(12-hour)' : '(24-hour)'}</label>
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="timeFormat24_calc"
+                      checked={!!(settings && settings.timeFormat24)}
+                      onChange={(e) => setSettingsSignal({ ...settings, timeFormat24: e.target.checked })}
+                    />
+                    <label className="form-check-label ms-2" htmlFor="timeFormat24_calc">24-hour format</label>
+                  </div>
+                </div>
               <div>
                 {settings && settings.timeFormat24 === false ? (
                   <div className="row g-2">

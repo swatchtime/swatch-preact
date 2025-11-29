@@ -16,16 +16,25 @@ export function Navbar() {
     setSettingsSignal(next);
   };
 
+  
+
   const count = currentEvents ? currentEvents.filter(e => !e.dismissed).length : 0;
 
   return (
     <nav className="navbar navbar-expand-lg bg-secondary-subtle mb-4 px-0 border-2 border-bottom border-secondary">
       <div className="container-fluid px-3 d-flex align-items-center">
 
-        <a className="navbar-brand mb-0 h1 d-flex align-items-center" href="/">
-          <img src="/beat-clock.png" alt="" width="30" height="30" />
-          <span className="ms-2">Swatch Internet Time</span>
-        </a>
+        <button
+          type="button"
+          className="navbar-brand mb-0 h1 d-flex align-items-center btn btn-link p-0"
+          data-bs-toggle="modal"
+          data-bs-target="#aboutModal"
+          aria-haspopup="dialog"
+          title="About Swatch Internet Time"
+        >
+          <img src="/beat-clock.png" alt="Logo" title="Swatch Internet Time" width="30" height="30" />
+          <span className="ms-2 d-none d-md-block">Swatch Internet Time</span>
+        </button>
 
         <div className="d-flex align-items-center ms-auto" title="Toggle Theme Color">
           <i className={`bi bi-brightness-high me-2 ${currentSettings.darkTheme ? 'icon-bright-dark' : 'icon-bright-light'}`}></i>
@@ -86,6 +95,8 @@ export function Navbar() {
         </div>
 
       </div>
+
+      
     </nav>
   );
 }

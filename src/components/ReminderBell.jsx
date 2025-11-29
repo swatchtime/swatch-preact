@@ -54,8 +54,16 @@ export function ReminderBell() {
             // Prefer the first due reminder that hasn't been acknowledged yet.
             const candidate = due.find(d => !d.acknowledged);
             if (candidate) {
-              console.debug('[ReminderBell] Opening modal for due reminders, id=', candidate && candidate.id);
-              setShowModal(true);
+              console.debug('[ReminderBell] Candidate due reminder id=', candidate && candidate.id);
+              // Only open the modal if reminders are not muted. Still record
+              // the current reminder so the bell UI can reflect it, but
+              // suppress the pop-up when muted.
+              if (!mute) {
+                console.debug('[ReminderBell] Opening modal for due reminders, id=', candidate && candidate.id);
+                setShowModal(true);
+              } else {
+                console.debug('[ReminderBell] Reminders are muted; suppressing modal for', candidate && candidate.id);
+              }
               return candidate;
             }
           }
@@ -100,12 +108,18 @@ export function ReminderBell() {
 
             // If modal isn't visible, open it and show the first newly due reminder.
             setCurrentReminder(prev => {
-              if (!prev && newlyDue.length) {
+                if (!prev && newlyDue.length) {
                 // Prefer the first newly-due reminder that hasn't been acknowledged yet.
                 const candidate = newlyDue.find(d => !d.acknowledged);
                 if (candidate) {
-                  console.debug('[ReminderBell] Opening modal for newly due reminder, id=', candidate && candidate.id);
-                  setShowModal(true);
+                  console.debug('[ReminderBell] Candidate newly-due reminder id=', candidate && candidate.id);
+                  // Respect the mute signal: if muted, do not open the modal.
+                  if (!muteSignal.value) {
+                    console.debug('[ReminderBell] Opening modal for newly due reminder, id=', candidate && candidate.id);
+                    setShowModal(true);
+                  } else {
+                    console.debug('[ReminderBell] Reminders are muted; suppressing modal for', candidate && candidate.id);
+                  }
                   return candidate;
                 }
               }
@@ -213,6 +227,11 @@ export function ReminderBell() {
 
   const handleBellClick = () => {
     console.debug('[ReminderBell] Bell clicked; activeReminders ids=', activeReminders.map(a => a.id));
+    // If reminders are muted, clicking the bell should not force the modal open.
+    if (mute) {
+      console.debug('[ReminderBell] Bell clicked while muted; not opening modal');
+      return;
+    }
     if (activeReminders.length > 0) {
       // Show the most-recent active reminder (last in the array).
       const last = activeReminders[activeReminders.length - 1];

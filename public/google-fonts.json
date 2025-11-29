@@ -3,10 +3,15 @@
     { "family": "Roboto", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
     { "family": "Open Sans", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
     { "family": "Lato", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
-    { "family": "IBM Plex Mono", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
+    { "family": "Major Mono Display", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
     { "family": "Courier Prime", "weights": ["400"], "display": "swap", "fallback": "monospace" },
-    { "family": "Geist Mono", "weights": ["400"], "display": "swap", "fallback": "monospace" },
+    { "family": "Yuji Syuku", "weights": ["400"], "display": "swap", "fallback": "sans-serif" },
     { "family": "Doto", "weights": ["400"], "display": "swap", "fallback": "monospace" },
-    { "family": "Martian Mono", "weights": ["400"], "display": "swap", "fallback": "monospace" }
+    { "family": "Martian Mono", "weights": ["400"], "display": "swap", "fallback": "monospace" },
+    { "family": "LXGW WenKai Mono TC", "weights": ["600"], "display": "swap", "fallback": "monospace" },
+    { "family": "Libertinus Mono", "weights": ["400"], "display": "swap", "fallback": "monospace" },
+    { "family": "Azeret Mono", "weights": ["400"], "display": "swap", "fallback": "monospace" },
+    { "family": "Caudex", "weights": ["400"], "display": "swap", "fallback": "monospace" },
+    { "family": "Cutive Mono", "weights": ["400"], "display": "swap", "fallback": "monospace" }
   ]
 }

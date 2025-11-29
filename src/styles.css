@@ -55,10 +55,12 @@ html, body {
 .swatch-at {
   padding-bottom: 0.06em;
   line-height: 1;
+  text-shadow: 2px 2px 2px black;
 }
 
 .swatch-time {
   line-height: 1;
+  text-shadow: 2px 2px 2px black;
 }
 
 /* Smooth small visual shift when a new font loads: keep changes subtle */
@@ -90,6 +92,7 @@ html, body {
   font-size: calc(var(--clock-user, calc(var(--clock-width) * var(--clock-scale))) / 3);
   color: var(--font-color, inherit);
   font-family: var(--font-family, inherit);
+  text-shadow: 1px 1px 1px black;
 }
 
 .modal-overlay {
@@ -97,6 +100,7 @@ html, body {
 }
 
 .colorpicker-row {
+  margin-top: -20px;
   display: flex;
   gap: 10px;
   align-items: flex-end;
@@ -231,7 +235,7 @@ html, body {
 }
 
 .footer-text {
-  opacity: 0.2;
+  opacity: 0.3;
   font-size: small;
   font-family: sans-serif;
 }

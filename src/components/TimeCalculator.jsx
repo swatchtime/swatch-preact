@@ -121,7 +121,7 @@ export function TimeCalculator() {
             </div>
             
             <div className="text-center mb-3">
-              <button type="submit" className="btn btn-lg btn-secondary px-5 py-2" title="Convert selected time">⇅</button>
+              <button type="submit" className="btn btn-lg bg-secondary-subtle px-5 py-2 fs-2 border border-2 border-secondary shadow" title="Convert selected time"><i class="bi bi-arrow-down-up"></i></button>
             </div>
             
             <div className="mb-3">

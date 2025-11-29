@@ -10,7 +10,8 @@ export function Navbar() {
     const nextDark = !currentSettings.darkTheme;
     const defaultColor = nextDark ? '#ffffff' : '#000000';
     const preset = nextDark ? 'dark-default' : 'light-default';
-    const nextCustom = nextDark ? defaultColor : '#ff7800';
+    // Keep the user's custom color if present; otherwise fall back to orange for light theme
+    const nextCustom = currentSettings && currentSettings.customColor ? currentSettings.customColor : (nextDark ? defaultColor : '#ff7800');
     const next = { ...currentSettings, darkTheme: nextDark, fontColor: defaultColor, colorPreset: preset, customColor: nextCustom };
     setSettingsSignal(next);
   };
@@ -58,8 +59,8 @@ export function Navbar() {
             className="btn btn-outline-secondary position-relative"
             data-bs-toggle="modal"
             data-bs-target="#remindersListModal"
-            title="All Reminders"
-            aria-label="All Reminders"
+            title="View Reminders"
+            aria-label="View Reminders"
           >
             <i className="bi bi-envelope"></i>
             {count > 0 ? (

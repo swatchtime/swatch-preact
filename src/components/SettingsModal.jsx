@@ -17,7 +17,12 @@ export function SettingsModal() {
           // Prefer the clock wrapper's measured width so slider max matches the frame
           const wrapper = document.querySelector('.swatch-clock-wrap');
           const containerWidth = wrapper ? wrapper.clientWidth : window.innerWidth;
-          const scale = settings.showCentibeats ? 0.18 : 0.22;
+          // base scale depends on whether centibeats are shown
+          const baseScale = settings.showCentibeats ? 0.18 : 0.22;
+          // small adjustment for fonts that are monospace/wider than average
+          const fam = familyFromSettingString(settings.fontFamily || '');
+          const scaleAdjust = fam && /mono/i.test(fam) ? 0.958 : 1;
+          const scale = baseScale * scaleAdjust;
           // computed max is a fraction of the container width, but clamp to sensible bounds
           const computedMax = Math.max(80, Math.min(Math.floor(containerWidth * scale), 600));
           setSliderMax(computedMax);
@@ -49,11 +54,10 @@ export function SettingsModal() {
     }, []);
 
     const handleChange = (key, value) => {
-      // When user changes fontFamily, lazy-load the selected Google Font
+      // When user changes fontFamily, lazy-load selected Google Font
       if (key === 'fontFamily') {
         const fam = familyFromSettingString(value);
         if (fam) {
-          // fire-and-forget load
           loadFontByFamilyName(fam);
         }
       }
@@ -69,6 +73,7 @@ export function SettingsModal() {
               <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div className="modal-body">
+              
               <div className="mb-3">
                 <ColorPicker
                   darkTheme={settings.darkTheme}
@@ -109,6 +114,7 @@ export function SettingsModal() {
                 <label className="form-label">Preview</label>
                 <FontPreview fontFamily={settings.fontFamily} fontColor={settings.fontColor} showCentibeats={settings.showCentibeats} />
               </div>
+
               <div className="form-check mt-5 mb-3">
                 <input 
                   className="form-check-input" 
@@ -121,6 +127,7 @@ export function SettingsModal() {
                   Show local time
                 </label>
               </div>
+
               <div className="form-check mb-3">
                 <input 
                   className="form-check-input" 
@@ -133,19 +140,7 @@ export function SettingsModal() {
                   Show seconds
                 </label>
               </div>
-              <div className="form-check mb-3">
-                <input 
-                  className="form-check-input" 
-                  type="checkbox" 
-                  id="showCentibeats"
-                  checked={settings.showCentibeats}
-                  onChange={handleCheckboxChange('showCentibeats')}
-                />
-                <label className="form-check-label" htmlFor="showCentibeats">
-                  Show centibeats (e.g. @626.43)
-                </label>
-              </div>
-              
+
               <div className="form-check mb-3">
                 <input 
                   className="form-check-input" 
@@ -156,6 +151,19 @@ export function SettingsModal() {
                 />
                 <label className="form-check-label" htmlFor="timeFormat24">
                   24-hour format
+                </label>
+              </div>    
+
+              <div className="form-check mb-3">
+                <input 
+                  className="form-check-input" 
+                  type="checkbox" 
+                  id="showCentibeats"
+                  checked={settings.showCentibeats}
+                  onChange={handleCheckboxChange('showCentibeats')}
+                />
+                <label className="form-check-label" htmlFor="showCentibeats">
+                  Show centibeats (e.g. @626.43)
                 </label>
               </div>
               

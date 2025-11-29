@@ -6,12 +6,12 @@ export function ColorPicker({ darkTheme, currentColor, selectedPreset, customCol
     dark: [
       { key: 'dark-lime', label: 'Lime', color: '#00FF00' },
       { key: 'dark-gold', label: 'Gold', color: '#FFD700' },
-      { key: 'dark-red', label: 'Red', color: '#DA0022' },  // Swatch Red
+      { key: 'dark-red', label: 'Pink', color: '#ff69b4' },
       { key: 'dark-blue', label: 'Blue', color: '#1E90FF' }
     ],
     light: [
-      { key: 'light-blue', label: 'Blue', color: '#1E90FF' },
-      { key: 'light-red', label: 'Red', color: '#DA0022' },  // Swatch Red
+      { key: 'light-blue', label: 'Navy', color: '#000080' },
+      { key: 'light-red', label: 'Red', color: '#DA0022' }, 
       { key: 'light-forest', label: 'Forest', color: '#228B22' },
       { key: 'light-purple', label: 'Purple', color: '#800080' }
     ]

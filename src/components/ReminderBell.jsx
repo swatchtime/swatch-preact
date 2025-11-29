@@ -155,8 +155,17 @@ export function ReminderBell() {
         setShowModal(false);
       } else {
         setCurrentReminder(curr => {
-          if (!curr) return filtered[0];
-          if (!ids.has(curr.id)) return filtered[0];
+          // If there is no current reminder shown in the UI, prefer the
+          // most-recent unacknowledged reminder (so "Close"/acknowledge
+          // doesn't immediately restore the same item). If none are
+          // unacknowledged, leave the modal closed (null).
+          if (!curr) {
+            const unacked = filtered.slice().reverse().find(r => !r.acknowledged);
+            return unacked || null;
+          }
+          // If the current reminder no longer exists in events, show the
+          // most-recent remaining reminder.
+          if (!ids.has(curr.id)) return filtered[filtered.length - 1];
           return curr;
         });
       }
@@ -187,8 +196,11 @@ export function ReminderBell() {
       if (typeof onDismiss === 'function') onDismiss(currentReminder.id);
 
       if (remaining.length > 0) {
-        setCurrentReminder(remaining[0]);
-        console.debug('[ReminderBell] Dismissed reminder, showing next id=', remaining[0] && remaining[0].id);
+        // Show the most-recent remaining reminder (treat activeReminders as
+        // a FIFO where newest items are at the end).
+        const next = remaining[remaining.length - 1];
+        setCurrentReminder(next);
+        console.debug('[ReminderBell] Dismissed reminder, showing next id=', next && next.id);
         setShowModal(true);
       } else {
         console.debug('[ReminderBell] Dismissed last active reminder, hiding modal');
@@ -202,7 +214,9 @@ export function ReminderBell() {
   const handleBellClick = () => {
     console.debug('[ReminderBell] Bell clicked; activeReminders ids=', activeReminders.map(a => a.id));
     if (activeReminders.length > 0) {
-      setCurrentReminder(activeReminders[0]);
+      // Show the most-recent active reminder (last in the array).
+      const last = activeReminders[activeReminders.length - 1];
+      setCurrentReminder(last);
       setShowModal(true);
     }
   };

@@ -118,6 +118,19 @@ swatch-preact/
 7 directories, 30 files
 ```
 
+## Important: Rounding and display
+
+When rendering centibeats (two decimal places) the app and any related code should avoid temporarily displaying `1000.00` due to rounding. The correct approach is to round the raw beats to two decimals, then wrap any value >= 1000 back into the 0..999.99 range before formatting for display. Example:
+
+```js
+const rawBeats = bielSeconds / 86.4;
+let rounded = Math.round(rawBeats * 100) / 100;
+if (rounded >= 1000) rounded = rounded - 1000;
+const display = rounded.toFixed(2);
+```
+
+This preserves conventional rounding while guaranteeing the UI never shows `1000.00` briefly.
+
 ## Browser Support
 
 - Modern browsers with ES6+ support

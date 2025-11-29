@@ -8,8 +8,12 @@ export function calculateSwatchTime(date = new Date()) {
   // Canonical method: seconds since UTC midnight + 3600s (Biel = UTC+1), wrap 0..86399.999
   const utcSecondsSinceMidnight = date.getUTCHours() * 3600 + date.getUTCMinutes() * 60 + date.getUTCSeconds() + date.getUTCMilliseconds() / 1000;
   const bielSeconds = (utcSecondsSinceMidnight + 3600) % 86400;
-  const beats = bielSeconds / 86.4;
-  return beats.toFixed(2);
+  const rawBeats = bielSeconds / 86.4;
+  // Round to 2 decimal places, but ensure wrap at 1000 -> 0
+  let rounded = Math.round(rawBeats * 100) / 100;
+  if (rounded >= 1000) rounded = rounded - 1000;
+  // Keep two decimals for display consistency
+  return rounded.toFixed(2);
 }
 
 /**

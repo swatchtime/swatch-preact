@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { calculateSwatchTime } from '../utils/swatchTime';
+import { familyFromSettingString } from '../utils/fonts';
 import { settingsSignal } from '../signals/store';
 
 // Helper: convert a px value into rem based on current document root font-size
@@ -72,7 +73,11 @@ export function SwatchClock() {
   }, []);
 
   // compute scale based on whether centibeats are shown (centibeats need smaller scale)
-  const scale = showCentibeats ? 0.18 : 0.22;
+  // and apply a slight adjustment for wide/monospace fonts so they don't overflow.
+  const baseScale = showCentibeats ? 0.18 : 0.22;
+  const fam = familyFromSettingString(fontFamily || '');
+  const scaleAdjust = fam && /mono/i.test(fam) ? 0.958 : 1;
+  const scale = baseScale * scaleAdjust;
 
   // set CSS vars: --clock-width and --clock-user (slider value), and --clock-scale
   // keep only CSS variables inline (dynamic values); static layout moved to CSS

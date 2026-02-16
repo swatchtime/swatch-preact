@@ -1,7 +1,7 @@
 {
   "name": "swatch-preact",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.2-beta",
   "type": "module",
   "scripts": {
     "dev": "vite",

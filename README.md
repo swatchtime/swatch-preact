@@ -138,9 +138,9 @@ This preserves conventional rounding while guaranteeing the UI never shows `1000
 
 ## License
 
-© 2025 Swatch Beats Revival
-All rights reserved.
-This is not open-source software. You may not redistribute, modify, or create derivative works without explicit written permission.
+[MIT License](LICENSE)
+
+## Contact
 
 Contact: admin@swatchtime.online
 
